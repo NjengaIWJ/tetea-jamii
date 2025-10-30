@@ -39,13 +39,13 @@ const IMAGE_QUALITY = 0.8;
 const MAX_FILES = 8;
 
 const Stories: React.FC = () => {
-	const { data, isError, error, isPending, refetch } = useGetInfo("/articles");
+	const { data, isError, error, isPending, refetch } = useGetInfo<StoryAPI[]>(import.meta.env.VITE_APP_ARTS_URL);
 	const {
 		mutate,
 		isError: isPostError,
 		error: postError,
 		isPending: isPostPending,
-	} = usePostInfo("/articles");
+	} = usePostInfo(import.meta.env.VITE_APP_ARTS_URL);
 	const admin = useAdminStore((s) => s.admin);
 	const addToast = useToastStore((s) => s.addToast);
 
@@ -64,6 +64,13 @@ const Stories: React.FC = () => {
 		if (crypto?.randomUUID) return crypto.randomUUID();
 		return Math.random().toString(36).slice(2, 9);
 	}, []);
+
+	// Handle error toast
+	useEffect(() => {
+		if (isError && error) {
+			addToast(error.message || "Failed to load stories", "error");
+		}
+	}, [isError, error, addToast]);
 
 	// Normalize fetched stories
 	useEffect(() => {
@@ -87,9 +94,10 @@ const Stories: React.FC = () => {
 
 	// Cleanup on unmount: revoke all object URLs
 	useEffect(() => {
+		const urls = urlSetRef.current;
 		return () => {
-			urlSetRef.current.forEach((url) => URL.revokeObjectURL(url));
-			urlSetRef.current.clear();
+			urls.forEach((url) => URL.revokeObjectURL(url));
+			urls.clear();
 		};
 	}, []);
 
@@ -206,7 +214,7 @@ const Stories: React.FC = () => {
 		});
 		setPreviewItems([]);
 		setTitle("");
-		setContent("");
+		setContent(""); 
 		if (fileInputRef.current) fileInputRef.current.value = "";
 	}, [previewItems]);
 
@@ -309,7 +317,7 @@ const Stories: React.FC = () => {
 	const StoryCard: React.FC<{ story: Story }> = ({ story }) => (
 		<Link
 			to={`/stories/${story.id}`}
-			className="group block bg-slate-800 hover:bg-slate-700 rounded-2xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-200 overflow-hidden"
+			className="group block bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-gray-700 rounded-2xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-200 overflow-hidden border border-green-100 dark:border-gray-700"
 		>
 			{story.media.length > 0 && (
 				<div className="h-48 overflow-hidden">
@@ -322,29 +330,26 @@ const Stories: React.FC = () => {
 				</div>
 			)}
 			<div className="p-5">
-				<h2 className="text-2xl font-semibold text-white mb-2">{story.title}</h2>
-				<p className="text-gray-300 line-clamp-3">{story.content}</p>
+				<h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-2">{story.title}</h2>
+				<p className="text-gray-600 dark:text-gray-300 line-clamp-3">{story.content}</p>
 			</div>
 		</Link>
 	);
 
 	return (
-		<main className="min-h-screen bg-urbanist-blue text-white p-6 flex flex-col items-center">
-			<h1 className="text-4xl font-bold mb-8">Stories</h1>
+		<main className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 text-gray-800 dark:text-gray-100 p-6 flex flex-col items-center">
+			<h1 className="text-4xl font-bold mb-8 text-[#15803d] dark:text-white m-4 p-4">Stories</h1>
 
-			{isError && (() => {
-				useToastStore.getState().addToast(error?.message || "Failed to load stories", "error");
-				return (
-					<div
-						role="alert"
-						aria-live="assertive"
-						className="bg-red-600 rounded-md px-4 py-2 mb-4 w-full max-w-xl"
-					>
-						<h2 className="font-bold">Fetch Error</h2>
-						<p>{error?.message || "Something went wrong fetching stories."}</p>
-					</div>
-				);
-			})()}
+			{isError && (
+				<div
+					role="alert"
+					aria-live="assertive"
+					className="bg-red-600 rounded-md px-4 py-2 mb-4 w-full max-w-xl"
+				>
+					<h2 className="font-bold">Fetch Error</h2>
+					<p>{error?.message || "Something went wrong fetching stories."}</p>
+				</div>
+			)}
 
 			{isPending && (
 				<div
@@ -356,16 +361,18 @@ const Stories: React.FC = () => {
 				</div>
 			)}
 
-			<section className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-				{stories.length > 0 ? stories.map((story) => <StoryCard key={story.id} story={story} />) : (
-					<p className="text-gray-300">No stories available.</p>
+			<section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-8">
+					{stories.length > 0 ? stories.map((story) => (
+						<StoryCard key={story.id} story={story} />
+					)) : (
+						<p className="text-gray-600 dark:text-gray-400 text-center col-span-full p-8 bg-white dark:bg-gray-800 rounded-lg border border-green-100 dark:border-gray-700">No stories available.</p>
 				)}
 			</section>
 
-			{admin && (
-				<form onSubmit={handleSubmit} encType="multipart/form-data" className="w-full max-w-md bg-gray-900 rounded-2xl shadow-2xl p-6 space-y-6" aria-busy={isPostPending}>
+				{admin && location.pathname.startsWith('/stories') && (
+				<form onSubmit={handleSubmit} encType="multipart/form-data" className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 space-y-6 border border-green-100 dark:border-gray-700" aria-busy={isPostPending}>
 					<div>
-						<label htmlFor="title" className="block text-md font-medium mb-2">Title</label>
+						<label htmlFor="title" className="block text-md font-medium mb-2 text-gray-700 dark:text-gray-200">Title</label>
 						<input
 							id="title"
 							type="text"
@@ -374,7 +381,7 @@ const Stories: React.FC = () => {
 							onChange={(e) => setTitle(e.target.value)}
 							required
 							disabled={isPostPending}
-							className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+							className="w-full px-4 py-2 rounded-lg bg-gray-700 dark:bg-gray-900 text-white dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
 						/>
 					</div>
 
@@ -420,7 +427,7 @@ const Stories: React.FC = () => {
 							required
 							rows={5}
 							disabled={isPostPending}
-							className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+							className="w-full px-4 py-2 rounded-lg bg-gray-700 dark:bg-gray-900 text-white dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
 						/>
 					</div>
 
@@ -450,7 +457,7 @@ const Stories: React.FC = () => {
 							aria-live="assertive"
 							className="bg-red-600 rounded-md px-4 py-2 text-sm text-white mt-2"
 						>
-							{postError?.message || "Something went wrong posting your story."}
+								{(postError as Error)?.message || "Something went wrong posting your story."}
 						</div>
 					)}
 				</form>

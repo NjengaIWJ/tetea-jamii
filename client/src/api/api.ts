@@ -9,24 +9,29 @@ type MutationPayload = Record<string, unknown> | FormData;
 const usePostInfo = (url: string) => {
 	return useMutation({
 		mutationFn: (data: MutationPayload) => {
-			return api.post(url, data);
+			// If caller provided a FormData (file upload), send as multipart/form-data
+			// Let the browser set the Content-Type (including boundary) for FormData.
+			// Setting Content-Type manually prevents the boundary from being added.
+			return api.post(url, data as unknown);
 		},
 		onSuccess: (data) => {
 			console.log("Info sent successfully:", data);
 			useToastStore.getState().addToast("Info sent successfully", "success");
 		},
-		onError: (error) => {
+		onError: (error: unknown) => {
 			console.error("Error sending info:", error);
-			useToastStore.getState().addToast("Error sending info", "error");
+			const axiosError = error as { response?: { data?: { error?: string; message?: string }; }; message?: string };
+			const errorMessage = axiosError.response?.data?.error || axiosError.response?.data?.message || axiosError.message || "Error sending info";
+			useToastStore.getState().addToast(errorMessage, "error");
 		},
 	});
 };
 
-const useGetInfo = (url: string) => {
-	return useQuery({
+const useGetInfo = <T>(url: string) => {
+	return useQuery<T>({
 		queryKey: [url],
 		queryFn: async () => {
-			const res = await api.get(url);
+			const res = await api.get<T>(url);
 			return res.data;
 		},
 	});

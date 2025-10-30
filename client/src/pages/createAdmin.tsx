@@ -76,9 +76,9 @@ const Login: React.FC = () => {
     <div className='flex justify-center items-center min-h-screen bg-surface-2'>
       <fieldset className='w-full max-w-md border border-surface-3 rounded-lg p-6 bg-surface-1 shadow-lg'>
         <legend>
-          <h1>Login</h1>
-          <legend>But</legend>
+          <h1 className='font-900' >Login</h1>
         </legend>
+
         {errorMsg && (
           <div className="flex items-center bg-error/10 border border-error text-error px-4 py-3 rounded relative mb-4" role="alert">
             <XCircle className="mr-2" size={20} />

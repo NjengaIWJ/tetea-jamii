@@ -1,19 +1,21 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 1.5rem;
-  text-align: center;
-  background: var(--surface-2); /* whitesmoke */
+  width: 100vw;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: var(--surface-2);
+  display: flex;
+  flex-direction: column;
 }
 
 main {
-  background: var(--surface-1); /* white card */
-  border-radius: var(--radius-lg);
-  box-shadow: 0 2px 16px 0 rgba(34, 197, 94, 0.04), 0 1.5px 6px 0 rgba(59, 130, 246, 0.04);
-  padding: var(--spacing-lg);
-  margin: 2rem auto;
-  max-width: 900px;
+  flex: 1;
+  width: 100%;
+  background: var(--surface-1);
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
 }
 
 a {

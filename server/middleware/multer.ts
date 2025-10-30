@@ -1,37 +1,48 @@
-import multer, { diskStorage, type Multer } from "multer";
+import fs from "fs";
+import path from "path";
+import multer, { type Multer, type FileFilterCallback } from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import type { RequestHandler } from "express";
-import path, { basename } from "path";
 
+/* ---------- Cloudinary config (reads from env) ---------- */
 cloudinary.config({
-	cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "",
-	api_key: process.env.CLOUDINARY_API_KEY || "",
-	api_secret: process.env.CLOUDINARY_API_SECRET || "",
-	timeout: 60000,
+	cloud_name: process.env.CLOUDINARY_CLOUD_NAME ?? "",
+	api_key: process.env.CLOUDINARY_API_KEY ?? "",
+	api_secret: process.env.CLOUDINARY_API_SECRET ?? "",
+	timeout: Number(process.env.CLOUDINARY_TIMEOUT_MS ?? 60000),
 });
-
 export { cloudinary };
 
-function sanitizeFileName(originalName: string): string {
-	const ext = path.extname(originalName);
-	const name = path.basename(originalName, ext);
+/* ---------- Configurable constants ---------- */
+const DEFAULT_MAX_FILE_SIZE = Number(process.env.MAX_UPLOAD_BYTES ?? 10 * 1024 * 1024); // 10 MB
+const ALLOWED_EXTENSIONS_RE = /\.(jpe?g|png|gif|docx?|pdf|txt|rtf|odt|xlsx|pptx|csv)$/i;
+const ALLOWED_MIME_RE = /^(image\/jpeg|image\/png|image\/gif|application\/msword|application\/vnd.openxmlformats-officedocument.wordprocessingml.document|application\/pdf|text\/plain|application\/rtf|application\/vnd.oasis.opendocument.text|application\/vnd.openxmlformats-officedocument.spreadsheetml.sheet|application\/vnd.openxmlformats-officedocument.presentationml.presentation|text\/csv)$/i;
 
-	const maxLength = 100;
-	let safeName = name;
-	if (name.length > maxLength) {
-		safeName = name.slice(0, maxLength);
+/* ---------- Utilities ---------- */
+function ensureDirSync(dir: string): void {
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir, { recursive: true });
 	}
-	// Optionally replace unsafe characters:
-	safeName = safeName.replace(/[^a-zA-Z0-9_\-]/g, "_");
-
-	return safeName + ext;
 }
 
-const storage = multer.diskStorage({
+function sanitizeFileName(originalName: string, maxLength = 100): string {
+	const ext = path.extname(originalName).toLowerCase();
+	let name = path.basename(originalName, ext);
+	if (name.length > maxLength) name = name.slice(0, maxLength);
+	name = name.replace(/[^a-zA-Z0-9_\-]/g, "_");
+	return name + ext;
+}
+
+/* ---------- Optional disk storage (not used by default) ---------- */
+const diskStorage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		// Different directories for different types of uploads
-		const uploadDir = file.fieldname === 'article' ? 'uploads/articles' : 'uploads/partners';
-		cb(null, uploadDir);
+		try {
+			const uploadDir = file.fieldname === "article" ? path.join("uploads", "articles") : path.join("uploads", "partners");
+			ensureDirSync(uploadDir);
+			cb(null, uploadDir);
+		} catch (err) {
+			cb(err as Error, "");
+		}
 	},
 	filename: (req, file, cb) => {
 		const clean = sanitizeFileName(file.originalname);
@@ -40,29 +51,35 @@ const storage = multer.diskStorage({
 	},
 });
 
+/* ---------- Memory storage (default) ---------- */
 const memoryStorage = multer.memoryStorage();
 
-// Create multer instance with memory storage for handling file uploads
-const uploads = multer({
-	storage: memoryStorage,
-	limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-	fileFilter: (req, file, cb) => {
-		const allowedTypes = /jpeg|jpg|png|gif/;
-		const extname = allowedTypes.test(
-			path.extname(file.originalname).toLowerCase()
-		);
-		const mimetype = allowedTypes.test(file.mimetype);
+/* ---------- File filter (extension + mime) ---------- */
+const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+	const extOk = ALLOWED_EXTENSIONS_RE.test(path.extname(file.originalname));
+	const mimeOk = ALLOWED_MIME_RE.test(file.mimetype);
 
-		if (extname && mimetype) {
-			return cb(null, true);
-		} else {
-			cb(new Error("Only image files are allowed!"));
-		}
-	},
+	if (extOk && mimeOk) {
+		cb(null, true);
+	} else {
+		cb(new Error("Unsupported file type. Allowed: images and common document formats (doc, docx, pdf, txt, rtf, odt, xlsx, pptx, csv)."));
+	}
+};
+
+/* ---------- Multer instance (memory storage) ---------- */
+const uploads: Multer = multer({
+	storage: memoryStorage,
+	limits: { fileSize: DEFAULT_MAX_FILE_SIZE },
+	fileFilter,
 });
 
-// Export middleware for different use cases
-export const formParser: RequestHandler = uploads.none(); // For forms without files
-export const fileUpload: RequestHandler = uploads.single("media"); // For single file upload
+
+// For forms without files
+export const formParser: RequestHandler = uploads.none();
+
+export const fileUpload: RequestHandler = uploads.single("file");
+
+// Accept any file fields (debugging / flexible routes)
+export const fileUploadAny: RequestHandler = uploads.any();
 
 export default uploads;

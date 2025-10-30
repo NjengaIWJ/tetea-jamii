@@ -149,3 +149,81 @@ export const deleteAdmin = async (req: Request, res: Response) => {
 		return res.status(500).json({ message: "Internal server error" });
 	}
 };
+
+export const refresh = async (req: Request, res: Response) => {
+	try {
+		// 1) Grab token from cookie or Authorization header as fallback
+		const tokenFromCookie = req.cookies?.jwt;
+		const authHeader = req.headers.authorization;
+		const token = tokenFromCookie ?? (authHeader && authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : undefined);
+
+		if (!token) {
+			return res.status(401).json({ message: "No token provided" });
+		}
+
+		// 2) Verify token
+		// Use the same secret used to sign tokens. You used Buffer.from(...) in sign; verify accepts Buffer or string.
+		let payload: AdminJwtPayload & jwt.JwtPayload;
+		try {
+			payload = jwt.verify(token, Buffer.from(authConfig.jwtSecret)) as AdminJwtPayload & jwt.JwtPayload;
+		} catch (err: any) {
+			// token invalid or expired
+			// If you want expired tokens to still allow refresh, you'd need a separate refresh token flow.
+			return res.status(401).json({ message: "Invalid or expired token" });
+		}
+
+		// 3) Basic payload sanity check
+		if (!payload?.adminId) {
+			return res.status(401).json({ message: "Invalid token payload" });
+		}
+
+		// 4) Ensure user still exists (and optionally check password rotation)
+		const admin = await Admin.findById(payload.adminId).select("+password +passwordChangedAt");
+		if (!admin) {
+			// user deleted or revoked
+			return res.status(401).json({ message: "Account no longer exists" });
+		}
+
+		// Optional security: If your Admin schema stores a `passwordChangedAt` timestamp,
+		// you should check whether the token was issued before the password change.
+		// iat is in seconds since epoch
+		if ((admin as any).passwordChangedAt) {
+			const pwdChangedAt = Math.floor(new Date((admin as any).passwordChangedAt).getTime() / 1000);
+			const tokenIat = typeof payload.iat === "number" ? payload.iat : 0;
+			if (pwdChangedAt > tokenIat) {
+				// password changed after token issued -> revoke
+				return res.status(401).json({ message: "Token invalid due to password change" });
+			}
+		}
+
+		// 5) Build new payload and sign a new token
+		const newPayload: AdminJwtPayload = {
+			adminId: String(admin._id),
+			email: admin.email,
+			role: admin.role,
+		};
+
+		const newToken = jwt.sign(
+			newPayload,
+			Buffer.from(authConfig.jwtSecret),
+			{ expiresIn: authConfig.jwtExpiry } as SignOptions // e.g. '15m' or '1h'
+		);
+
+		// 6) Set cookie (same options you use in login)
+		// Make sure authConfig.cookieOptions includes httpOnly: true, secure: true in prod, sameSite
+		res.cookie("jwt", newToken, authConfig.cookieOptions);
+
+		// 7) Return safe user object + token if you want to use it client-side
+		const safe = {
+			id: admin._id?.toString(),
+			email: admin.email,
+			username: admin.username,
+			role: admin.role,
+		};
+
+		return res.status(200).json({ user: safe, token: newToken });
+	} catch (err: any) {
+		console.error("Error in refresh:", err);
+		return res.status(500).json({ message: "Internal server error" });
+	}
+};

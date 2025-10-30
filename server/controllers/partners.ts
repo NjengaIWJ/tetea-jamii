@@ -1,11 +1,20 @@
 import type { Request, Response } from "express";
 import Partners from "../models/Partner.model.ts";
 import path from "path";
-import { streamupload } from "../config/cloudinary.ts";
+import { streamUpload } from "../config/cloudinary.ts";
 
 const createPartner = async (req: Request, res: Response) => {
 	const { name } = req.body;
-	const image = req.file;
+	// When `fileUploadAny` is used (development debugging), multer attaches files
+	// to `req.files` (array) instead of `req.file`. Normalize so the rest of the
+	// handler can work the same in both cases.
+	const image = (req as any).file ?? ((req as any).files && (req as any).files[0]);
+	// Log incoming multipart fields in development to help debug Unexpected field errors
+	if (process.env.NODE_ENV === 'development') {
+		console.debug('createPartner: req.body=', req.body);
+		console.debug('createPartner: req.files=', (req as any).files);
+		console.debug('createPartner: req.file=', (req as any).file);
+	}
 
 	try {
 		// Validate required fields
@@ -23,15 +32,16 @@ const createPartner = async (req: Request, res: Response) => {
 		let imageURL: string | undefined;
 
 		try {
-			imageURL = await streamupload(image)
-			console.log("File saved to disk:", imageURL);
-		} catch (error) {
-			console.error("Error uploading media:", error);
-			return res.status(500).json({ error: "Media upload error" });
-		}
+			const { secure_url, public_id, bytes } = await streamUpload(image);
+			imageURL = secure_url;
+			console.log(`Uploaded to Cloudinary: ${public_id} (${(bytes / 1024).toFixed(2)} KB)`);
+
+
 		const newPartner = await Partners.create({
 			name: name.trim(),
 			media: imageURL,
+			publicId: public_id
+
 		});
 
 		res.status(201).json({
@@ -39,7 +49,14 @@ const createPartner = async (req: Request, res: Response) => {
 			message: `Partner ${name} created successfully`,
 		});
 
-		console.log("New partner created:", newPartner);
+			console.log("New partner created:", newPartner);
+
+		} catch (error) {
+			console.error("Error uploading media:", error);
+			return res.status(500).json({ error: "Media upload error" });
+		}
+
+
 	} catch (error: any) {
 		console.error("Error creating partner:", error);
 
@@ -94,7 +111,7 @@ const updatePartner = async (req: Request, res: Response) => {
 
 	try {
 		// Build the updates object gradually, only including fields that are provided
-		const updates: { name?: string; media?: string } = {};
+		const updates: { name?: string; media?: string, publicId?: string } = {};
 
 		// Only update name if provided
 		if (name && name.trim()) {
@@ -104,9 +121,10 @@ const updatePartner = async (req: Request, res: Response) => {
 		// Handle image upload if a new file is provided
 		if (req.file) {
 			// Upload new image to Cloudinary
-			const imageURL = await streamupload(req.file)
+			const { secure_url, public_id } = await streamUpload(req.file)
 
-			updates.media = imageURL;
+			updates.media = secure_url;
+			updates.publicId = public_id;
 		}
 
 		// Check if there are actually updates to make

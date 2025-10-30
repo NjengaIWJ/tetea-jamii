@@ -1,3 +1,4 @@
+import { PassThrough } from "stream";
 import { cloudinary } from "../middleware/multer.ts";
 
 interface CloudinaryUploadResult {
@@ -5,30 +6,25 @@ interface CloudinaryUploadResult {
 	public_id: string;
 }
 
-const streamupload = (file: Express.Multer.File): Promise<string> => {
+export const streamUpload = (file: Express.Multer.File): Promise<{ secure_url: string; public_id: string; bytes: number }> => {
 	return new Promise((resolve, reject) => {
-		const upload_stream = cloudinary.uploader
-			.upload_stream(
-				{
-					upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET as string,
-					resource_type: "auto",
-					folder: file.mimetype.startsWith("image/") ? "images" : "media",
-				},
-				(error, result: CloudinaryUploadResult | undefined) => {
-					if (result) {
-						console.log("Successfully uploaded to Cloudinary:", {
-							publicId: result.public_id,
-							url: result.secure_url,
-						});
-						resolve(result.secure_url);
-					} else {
-						console.error("Cloudinary upload error:", error);
-						reject(error);
-					}
-				}
-			)
-			.end(file.buffer);
+		if (!file.buffer) return reject(new Error('No file buffer'));
+		const folder = file.mimetype.startsWith('image/') ? 'images' : 'media';
+		const uploadStream = cloudinary.uploader.upload_stream({
+			upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET!,
+			resource_type: 'auto',
+			folder
+		}, (error, result) => {
+			if (error || !result) {
+				return reject(error ?? new Error('Cloudinary upload failed'));
+			}
+
+			console.log(result.secure_url, ': secureUrl', result.public_id, ": public_id");
+
+			resolve({ secure_url: result.secure_url, public_id: result.public_id, bytes: result.bytes ?? file.size });
+		});
+		const bufferStream = new PassThrough();
+		bufferStream.end(file.buffer);
+		bufferStream.pipe(uploadStream);
 	});
 };
-
-export { streamupload };

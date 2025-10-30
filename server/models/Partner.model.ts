@@ -25,6 +25,11 @@ const PartnerSchema = new Schema(
 			minlength: [2, "Partner name must be at least 2 characters long"],
 			maxlength: [100, "Partner name cannot exceed 100 characters"],
 		},
+		publicId: {
+			type: String,
+			required: [true, "Cloudinary public ID is required"],
+			trim: true,
+		}
 	},
 	{
 		timestamps: true, // Automatically adds createdAt and updatedAt fields

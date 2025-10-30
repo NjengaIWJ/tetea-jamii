@@ -6,6 +6,7 @@ import {
 	getAdmins,
 	login,
 	logout,
+	refresh,
 	updateAdmin,
 } from "../controllers/admin.ts";
 import { authToken } from "../middleware/jwt.ts";
@@ -23,6 +24,8 @@ adminRouter
 	.get(getAdminById)
 	.put(updateAdmin)
 	.delete(deleteAdmin);
+
+adminRouter.get('/refresh', refresh);
 
 adminRouter.post("/logout", logout);
 

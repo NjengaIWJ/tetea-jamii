@@ -1,53 +1,71 @@
 import type { Request, Response } from "express";
 import Story from "../models/Story.model.ts";
-import { streamupload } from "../config/cloudinary.ts";
 import { Types } from "mongoose";
+import { streamUpload } from "../config/cloudinary.ts";
 
-const createArticle = async (req: Request, res: Response) => {
-	console.log("Request body:", req.body);
-	console.log("Request file(s):", req.file, req.files);
 
-	const { title, content } = req.body;
+type ApiResponse<T = unknown> = {
+	success: boolean;
+	message?: string;
+	data?: T;
+	error?: string;
+};
 
-	let mediaUrls: string[] = [];
-
-	console.log("Title:", title);
-	console.log("Content:", content);
-	console.log("Files:", req.files);
-
-	if (req.files && Array.isArray(req.files)) {
-		try {
-			// Upload all files to cloudinary
-			const uploadPromises = req.files.map(file => streamupload(file));
-			mediaUrls = await Promise.all(uploadPromises);
-
-			console.log("Files saved:", mediaUrls);
-		} catch (error) {
-			console.error("Error uploading media:", error);
-			return res.status(500).json({ error: "Media upload error" });
-		}
-	}
-
+const createArticle = async (
+	req: Request,
+	res: Response<ApiResponse<{ id: string; media: { url: string; publicId: string }[] }>>
+) => {
 	try {
+		const { title, content } = req.body;
+
+		if (typeof title !== "string" || !title.trim()) {
+			return res.status(400).json({ success: false, message: "Validation error", error: "Title is required" });
+		}
+		if (typeof content !== "string" || !content.trim()) {
+			return res.status(400).json({ success: false, message: "Validation error", error: "Content is required" });
+		}
+
+		const files = Array.isArray(req.files) ? req.files as Express.Multer.File[] : [];
+
+		const mediaItems: { url: string; publicId: string }[] = [];
+
+		if (files.length > 0) {
+			const uploadPromises = files.map(file =>
+				streamUpload(file)
+			);
+			const results = await Promise.all(uploadPromises);
+
+			for (const r of results) {
+				mediaItems.push({ url: r.secure_url, publicId: r.public_id });
+			}
+		}
+
 		const article = await Story.create({
 			title: title.trim(),
 			content: content.trim(),
-			media: mediaUrls,
+			media: mediaItems.map(m => m.url),
+			mediaPublicIds: mediaItems.map(m => m.publicId)
 		});
 
-		console.log(article, `article`);
+		return res.status(201).json({
+			success: true,
+			message: "Article created successfully",
+			data: {
+				id: article._id.toString(),
+				media: mediaItems
+			}
+		});
 
-		await getArticles(req, res);
-
-	} catch (error) {
-		console.error("Article creation error:", error);
+	} catch (err) {
+		console.error("Article creation error:", err);
 		return res.status(500).json({
 			success: false,
 			message: "Failed to create article",
-			error: error instanceof Error ? error.message : "Unknown error occurred",
+			error: err instanceof Error ? err.message : "Unknown error occurred",
 		});
 	}
 };
+
 
 const getArticles = async (req: Request, res: Response) => {
 	try {

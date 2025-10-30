@@ -40,12 +40,21 @@ const useAdminStore = create<AdminState>()(
 			isAdmin: false,
 
 			login: (response: LoginResponse) => {
-				console.log("Login response:", response);
+				console.log("Login response:", JSON.stringify(response, null, 2));
 
 				const { user, token } = response;
 
-				if (!user?.id || !user?.email || !user?.role) {
-					console.error("Invalid user data:", user);
+				if (!user) {
+					console.error("No user data in response");
+					return;
+				}
+
+				if (!user.id || !user.email || !user.role) {
+					console.error("Missing required user fields:", {
+						id: !!user.id,
+						email: !!user.email,
+						role: !!user.role
+					});
 					return;
 				}
 
@@ -112,24 +121,23 @@ const useAdminStore = create<AdminState>()(
 					console.log("persistedState:", persistedState);
 
 					const refreshURL = import.meta.env.VITE_APP_REFRESH__URL;
-					const logoutURL = import.meta.env.VITE_APP_LOGOUT__URL;
-
+					/* 					const logoutURL = import.meta.env.VITE_APP_LOGOUT__URL;
+					 */
 					if (persistedState && persistedState.admin) {
 						try {
 							const response = await api.get(refreshURL);
-							// assume response contains { user, token }
 							const { user, token } = response.data;
 
-							// Update store state with new token & user
-							store.login({ user, token });
+							if (user && token) {
+								store.login({ user, token });
+							} else {
+								console.error("Invalid refresh response:", response.data);
+								store.clear();
+							}
 						} catch (err) {
 							console.error("Refresh failed:", err);
-							try {
-								await api.get(logoutURL);
-							} catch (logoutErr) {
-								console.error("Logout failed:", logoutErr);
-							}
-							store.clear();
+
+							store.setHasHydrated(true);
 						}
 					}
 

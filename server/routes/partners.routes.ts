@@ -1,11 +1,15 @@
 import { Router } from "express";
 import { createPartner, deletePartner, getPartnerById, getPartners, updatePartner } from "../controllers/partners.ts";
-import { fileUpload } from "../middleware/multer.ts";
+import { fileUpload, fileUploadAny } from "../middleware/multer.ts";
 
 const partnerRouter = Router()
 
 partnerRouter.route("/partners")
-  .post(fileUpload, createPartner)
+  // Use the strict single-file middleware in production. During development, use
+  // `fileUploadAny` to log and inspect incoming multipart fields if you hit
+  // unexpected-field errors. This helps identify mismatches between client
+  // field names and server expectations.
+  .post(process.env.NODE_ENV === 'development' ? fileUploadAny : fileUpload, createPartner)
   .get(getPartners); 
 
 partnerRouter.route("/partners/:id").get(getPartnerById).patch(updatePartner).delete(deletePartner);

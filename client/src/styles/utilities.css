@@ -1,13 +1,84 @@
 /* Small utility classes not covered by Tailwind or for critical fallback */
 
-/* Use .site-container to avoid colliding with Tailwind's container utility */
 .site-container {
   width: 100%;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: var(--spacing-md);
-  padding-right: var(--spacing-md);
+  min-height: calc(100vh - var(--header-height) - var(--footer-height));
+  margin: 0 auto;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive containers */
+.container-fluid {
+  width: 100%;
+  max-width: var(--max-width, 1440px);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-sm {
+    padding: 0 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-md {
+    padding: 0 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-lg {
+    padding: 0 4rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-xl {
+    padding: 0 5rem;
+  }
+}
+
+/* Layout utilities */
+.page-container {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Page specific layouts */
+.grid-layout {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-layout {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Content sections */
+.content-section {
+  width: 100%;
+  padding: 2rem 0;
+}
+
+@media (min-width: 768px) {
+  .content-section {
+    padding: 3rem 0;
+  }
 }
 
 /* Navbar link patterns: keep styles small and composable. */
@@ -36,4 +107,21 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+::-webkit-scrollbar{
+  width: 18px;
+  color: var(--surface-3);
+  background-color: var(--surface-2);
+}
+
+::-webkit-scrollbar-button{
+color: aliceblue;
+background-color: var(--surface-2);
+}
+
+::-webkit-scrollbar-thumb{
+  background-color: var(--surface-3);
+  border-radius: 10px;
+  border: 6px solid var(--surface-2);
 }

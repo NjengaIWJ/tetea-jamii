@@ -23,8 +23,6 @@
   animation: slideIn 0.3s ease-in-out;
 }
 
-
-
 .toast-success {
   background-color: #4caf50;
   color: white;
@@ -53,6 +51,22 @@
   cursor: pointer;
   padding: 0 0.5rem;
   margin-left: 1rem;
+}
+
+legend{
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 1rem;
+  border-radius: 0 var(--radius-md) ;
+  border: dotted var(--color-primary-blue-500);
+}
+
+footer{
+  background-color: var(--surface-1);
+  padding: 10px 0;
+  margin-top: auto;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 @keyframes slideIn {
@@ -86,7 +100,7 @@
 
 .btn-primary {
   background-color: var(--color-primary-blue-500);
-  color: #fff;
+  color: #352d2d;
 }
 
 .btn-primary:hover {
@@ -126,8 +140,6 @@ a{
   align-items: center;
   justify-content: center;
 }
-
-
 
 /* Inputs */
 .input-base {
