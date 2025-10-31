@@ -80,11 +80,13 @@ app.use((req: Request, res: Response) => {
 
 const port = Number(PORT) || 3000;
 
-/* app.listen(port, '0.0.0.0', () => {
+if (process.env.VERCEL !== `1`) {
+	app.listen(port, '0.0.0.0', () => {
 	console.log(`Server is running on port ${port}`);
 	process.on('unhandledRejection', (reason, promise) => {
 		console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 	});
-}); */
-
+	});
+}
 export default app;
+
