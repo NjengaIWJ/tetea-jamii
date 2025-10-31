@@ -78,7 +78,7 @@ app.use((req: Request, res: Response) => {
 	res.status(404).send({ message: "Endpoint not found" });
 });
 
-const port = Number(PORT) || 3000;
+const port = Number(PORT) 
 
 if (process.env.VERCEL !== `1`) {
 	app.listen(port, '0.0.0.0', () => {
@@ -89,4 +89,3 @@ if (process.env.VERCEL !== `1`) {
 	});
 }
 export default app;
-
