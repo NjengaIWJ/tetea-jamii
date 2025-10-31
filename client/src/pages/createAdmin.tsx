@@ -50,13 +50,10 @@ const Login: React.FC = () => {
       password: data.password
     }
 
-    console.log(`Login  ${LoginURL}`);
-
-
     mutate(formData, {
-      onSuccess: data => {
+      onSuccess: () => {
         setData({ email: '', password: '' })
-        console.log('Login successful:', data)
+        navigate('/')
       },
       onError: (err: unknown) => {
         let message = 'Login failed. Please check your credentials.'

@@ -40,7 +40,7 @@ const useAdminStore = create<AdminState>()(
 			isAdmin: false,
 
 			login: (response: LoginResponse) => {
-				console.log("Login response:", JSON.stringify(response, null, 2));
+
 
 				const { user, token } = response;
 
@@ -74,11 +74,6 @@ const useAdminStore = create<AdminState>()(
 					isAdmin: adminFlag,
 				});
 
-				console.log("Login successful:", {
-					user,
-					isAuthenticated: true,
-					isAdmin: adminFlag,
-				});
 			},
 
 			logout: () => {
@@ -118,7 +113,6 @@ const useAdminStore = create<AdminState>()(
 						return;
 					}
 
-					console.log("persistedState:", persistedState);
 
 					const refreshURL = import.meta.env.VITE_APP_REFRESH__URL;
 					/* 					const logoutURL = import.meta.env.VITE_APP_LOGOUT__URL;
