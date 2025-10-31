@@ -5,8 +5,8 @@ import {
 	getArticleById,
 	updateArticle,
 	deleteArticle,
-} from "../controllers/articles.ts";
-import uploads from "../middleware/multer.ts";
+} from "../controllers/articles";
+import uploads from "../middleware/multer";
 
 const articlesRouter = Router();
 

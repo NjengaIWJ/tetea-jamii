@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 import path from "path";
 
-import Partners from "../models/Partner.model.ts";
-import { streamUpload } from "../config/cloudinary.ts";
+import Partners from "../models/Partner.model";
+import { streamUpload } from "../config/cloudinary";
 
 const createPartner = async (req: Request, res: Response) => {
 	const { name } = req.body;

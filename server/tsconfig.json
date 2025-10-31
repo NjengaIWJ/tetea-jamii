@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "target": "ES2022",
     "outDir": "./dist",
     "esModuleInterop": true,
@@ -19,14 +18,8 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noEmit": false,
     "allowJs": true,
-    "checkJs": true,
-    "allowImportingTsExtensions": true,
-    "emitDeclarationOnly": true,
-    "declaration": true
+    "checkJs": true
   },
   "include": [
     "./**/*.ts"

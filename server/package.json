@@ -11,14 +11,14 @@
 	],
 	"license": "MIT",
 	"author": "Njenga Ian Josh",
-	"type": "module",
+	"type": "commonjs",
 	"main": "dist/index.js",
 	"engines": {
 		"node": ">=18.0.0"
 	},
 	"scripts": {
 		"test": "jest",
-		"start": "nodemon dist/index.js",
+		"start": "nodemon dist/index.d.ts",
 		"build": "rm -rf dist && npm ci --include=dev && tsc -p tsconfig.json",
 		"dev": "nodemon --exec ts-node api/index.ts"
 	},

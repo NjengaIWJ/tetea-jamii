@@ -1,6 +1,6 @@
 import { Router } from "express";
-import uploads, { fileUpload } from "../middleware/multer.ts";
-import { createDocument, deleteDocumentById, getDocumentById, listDocuments } from "../controllers/docs.ts";
+import uploads, { fileUpload } from "../middleware/multer";
+import { createDocument, deleteDocumentById, getDocumentById, listDocuments } from "../controllers/docs";
 
 const documentRouter = Router();
 
