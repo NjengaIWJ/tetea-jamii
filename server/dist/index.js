@@ -50,8 +50,9 @@ const admin_routes_1 = __importDefault(require("./routes/admin.routes"));
 const articles_routes_1 = __importDefault(require("./routes/articles.routes"));
 const partners_routes_1 = __importDefault(require("./routes/partners.routes"));
 const document_routes_1 = __importDefault(require("./routes/document.routes"));
+const logger_1 = __importStar(require("./utils/logger"));
 const { PORT, frontendURL, mongoUri } = env_config_1.envConfig;
-console.log(PORT, frontendURL, mongoUri, 'env');
+logger_1.default.info(`Environment Variables - PORT: ${PORT}, frontendURL: ${frontendURL}, mongoUri: ${mongoUri ? 'Provided' : 'Not Provided'}`);
 const app = (0, express_1.default)();
 const corsOptions = {
     origin: frontendURL,
@@ -74,6 +75,8 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(passport_1.default.initialize());
 app.use((0, helmet_1.default)());
+app.use(logger_1.winstonLog);
+app.use(logger_1.requestMiddleWare);
 app.get("/", (req, res) => {
     res.send("API is running...");
 });
@@ -81,15 +84,15 @@ app.get("/", (req, res) => {
     if (mongoUri) {
         try {
             await (0, db_1.default)(mongoUri);
-            console.log("Connected to the database successfully.");
+            logger_1.default.info(`Connected to the database successfully.`);
         }
         catch (err) {
-            console.error("Failed to connect to the database:", err);
+            logger_1.default.error("Failed to connect to the database:", err);
             process.exit(1);
         }
     }
     else {
-        console.warn("Skipping DB connect because mongoUri is empty.");
+        logger_1.default.warn("Skipping DB connect because mongoUri is empty.");
     }
 })();
 app.use("/api/sendEmail", multer_1.formParser, mailer_1.default);
@@ -98,18 +101,20 @@ app.use("/api", articles_routes_1.default);
 app.use("/api", partners_routes_1.default);
 app.use("/api", document_routes_1.default);
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    logger_1.default.error(err.stack || err.message, { error: err, route: req.path, method: req.method });
     res.status(500).send({ message: err.message });
 });
 app.use((req, res) => {
+    logger_1.default.warn(`404 Not Found - ${req.method} ${req.url}`, { route: req.path, method: req.method });
     res.status(404).send({ message: "Endpoint not found" });
 });
 const port = Number(PORT);
 if (process.env.VERCEL !== `1`) {
     app.listen(port, '0.0.0.0', () => {
-        console.log(`Server is running on port ${port}`);
+        logger_1.default.info(`Server is running on port ${port}`);
+        // Handle uncaught exceptions
         process.on('unhandledRejection', (reason, promise) => {
-            console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+            logger_1.default.error('Unhandled Rejection at:', promise, 'reason:', reason);
         });
     });
 }

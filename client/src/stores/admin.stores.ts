@@ -117,6 +117,8 @@ const useAdminStore = create<AdminState>()(
 					const refreshURL = import.meta.env.VITE_APP_REFRESH__URL;
 					/* 					const logoutURL = import.meta.env.VITE_APP_LOGOUT__URL;
 					 */
+					console.log(refreshURL);
+
 					if (persistedState && persistedState.admin) {
 						try {
 							const response = await api.get(refreshURL);
