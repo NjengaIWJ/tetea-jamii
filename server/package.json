@@ -19,8 +19,8 @@
 	"scripts": {
 		"test": "jest",
 		"start": "nodemon dist/index.d.ts",
-		"build": "rm -rf dist && tsc -p tsconfig.json ",
-		"dev": "nodemon --exec ts-node index.ts"
+		"build": "rm -rf dist && npm ci --include=dev && tsc -p tsconfig.json",
+		"dev": "nodemon --exec ts-node api/index.ts"
 	},
 	"dependencies": {
 		"@dotenvx/dotenvx": "^1.51.0",
