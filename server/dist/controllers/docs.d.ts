@@ -1,4 +1,4 @@
-import { type Request, type Response } from "express";
+import type { Request, Response } from "express";
 type ApiResponse<T = unknown> = {
     success: boolean;
     message?: string;
