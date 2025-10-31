@@ -41,7 +41,6 @@ const useAdminStore = create<AdminState>()(
 
 			login: (response: LoginResponse) => {
 
-
 				const { user, token } = response;
 
 				if (!user) {

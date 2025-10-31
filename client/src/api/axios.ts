@@ -32,7 +32,7 @@ api.interceptors.response.use(
 
 			try {
 				// Attempt to refresh the token
-				const response = await api.post("/auth/refresh");
+				const response = await api.get("/refresh");
 				const { token } = response.data;
 
 				if (token) {
