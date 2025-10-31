@@ -18,8 +18,8 @@
 	},
 	"scripts": {
 		"test": "jest",
-		"start": "node dist/index.js",
-		"build": "rimraf dist && tsc -p tsconfig.json",
+		"start": "nodemon dist/index.d.ts",
+		"build": "rm -rf dist && tsc -p tsconfig.json ",
 		"dev": "nodemon --exec ts-node index.ts"
 	},
 	"dependencies": {
