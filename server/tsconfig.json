@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "rootDir": ".",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "es2022",
+    "moduleResolution": "bundler",
     "target": "ES2022",
     "outDir": "./dist",
     "esModuleInterop": true,
@@ -24,8 +24,8 @@
     "noEmit": false,
     "allowJs": true,
     "checkJs": true,
-    "allowImportingTsExtensions": true,
-    "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": false,
+    "emitDeclarationOnly": false,
     "declaration": true
   },
   "include": [

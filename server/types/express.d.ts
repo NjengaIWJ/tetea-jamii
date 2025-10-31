@@ -1,4 +1,4 @@
-import type { AdminJwtPayload } from "../middleware/jwt.ts";
+import type { AdminJwtPayload } from "../middleware/jwt";
 
 declare global {
 	namespace Express {

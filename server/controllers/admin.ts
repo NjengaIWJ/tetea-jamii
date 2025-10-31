@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 import jwt, { type SignOptions } from "jsonwebtoken";
-import Admin from "../models/Admin.model.ts";
-import type { AdminJwtPayload } from "../middleware/jwt.ts";
-import { authConfig } from "../config/auth.config.ts";
+import Admin from "../models/Admin.model";
+import type { AdminJwtPayload } from "../middleware/jwt";
+import { authConfig } from "../config/auth.config";
 
 export const createAdmin = async (req: Request, res: Response) => {
 	const { username, email, password, role } = req.body;
@@ -227,3 +227,4 @@ export const refresh = async (req: Request, res: Response) => {
 		return res.status(500).json({ message: "Internal server error" });
 	}
 };
+

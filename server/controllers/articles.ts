@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import Story from "../models/Story.model.ts";
+import Story from "../models/Story.model";
 import { Types } from "mongoose";
-import { streamUpload } from "../config/cloudinary.ts";
+import { streamUpload } from "../config/cloudinary";
 
 
 type ApiResponse<T = unknown> = {
