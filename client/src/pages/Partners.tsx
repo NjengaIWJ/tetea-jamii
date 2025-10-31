@@ -229,6 +229,7 @@ const Partners: React.FC = () => {
 										alt={p.name}
 										className="w-32 h-32 object-cover rounded-full mb-4 shadow-md"
 									/>
+
 									<h3 className="font-medium text-[var(--text-primary)] text-lg">
 										{p.name}
 									</h3>

@@ -6,3 +6,4 @@ export declare const getAdmins: (req: Request, res: Response) => Promise<Respons
 export declare const getAdminById: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 export declare const updateAdmin: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 export declare const deleteAdmin: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const refresh: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;

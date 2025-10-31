@@ -1,4 +1,4 @@
-import { type Request, type Response } from "express";
+import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
 import { streamUpload } from "../config/cloudinary.ts";

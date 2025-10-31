@@ -2,9 +2,11 @@ import { Schema } from "mongoose";
 declare const Partners: import("mongoose").Model<{
     name: string;
     media: string;
+    publicId: string;
 } & import("mongoose").DefaultTimestampProps, {}, {}, {}, import("mongoose").Document<unknown, {}, {
     name: string;
     media: string;
+    publicId: string;
 } & import("mongoose").DefaultTimestampProps, {}, {
     timestamps: true;
     toJSON: {
@@ -16,6 +18,7 @@ declare const Partners: import("mongoose").Model<{
 }> & {
     name: string;
     media: string;
+    publicId: string;
 } & import("mongoose").DefaultTimestampProps & {
     _id: import("mongoose").Types.ObjectId;
 } & {
@@ -31,9 +34,11 @@ declare const Partners: import("mongoose").Model<{
 }, {
     name: string;
     media: string;
+    publicId: string;
 } & import("mongoose").DefaultTimestampProps, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<{
     name: string;
     media: string;
+    publicId: string;
 } & import("mongoose").DefaultTimestampProps>, {}, import("mongoose").ResolveSchemaOptions<{
     timestamps: true;
     toJSON: {
@@ -45,6 +50,7 @@ declare const Partners: import("mongoose").Model<{
 }>> & import("mongoose").FlatRecord<{
     name: string;
     media: string;
+    publicId: string;
 } & import("mongoose").DefaultTimestampProps> & {
     _id: import("mongoose").Types.ObjectId;
 } & {
