@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
 import jwt, { type SignOptions } from "jsonwebtoken";
-import Admin from "../models/Admin.model";
-import type { AdminJwtPayload } from "../middleware/jwt";
-import { authConfig } from "../config/auth.config";
+
+import Admin from "../models/Admin.model.ts";
+import type { AdminJwtPayload } from "../middleware/jwt.ts";
+import { authConfig } from "../config/auth.config.ts";
 
 export const createAdmin = async (req: Request, res: Response) => {
 	const { username, email, password, role } = req.body;

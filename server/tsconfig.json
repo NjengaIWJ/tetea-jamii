@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "rootDir": ".",
-    "module": "es2022",
-    "moduleResolution": "bundler",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "target": "ES2022",
     "outDir": "./dist",
     "esModuleInterop": true,
@@ -24,7 +24,7 @@
     "noEmit": false,
     "allowJs": true,
     "checkJs": true,
-    "allowImportingTsExtensions": false,
+    "allowImportingTsExtensions": true,
     "emitDeclarationOnly": false,
     "declaration": true
   },

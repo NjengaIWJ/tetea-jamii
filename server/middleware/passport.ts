@@ -5,8 +5,8 @@ import {
   type StrategyOptions,
 } from "passport-jwt";
 import type { Request } from "express";
-import Admin from "../models/Admin.model";
-import { config } from "../config/config";
+import Admin from "../models/Admin.model.ts";
+import { config } from "../config/config.ts";
 
 const opts: StrategyOptions = {
 	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

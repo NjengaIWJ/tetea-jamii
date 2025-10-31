@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import type { Request, Response } from "express";
 import sgMail from "@sendgrid/mail";
-import { envConfig } from "../config/env.config";
+import { envConfig } from "../config/env.config.ts";
 
 const { SENDGRID_API_KEY, SENDGRID_FROM, EMAIL_USER, EMAIL_PASS } = envConfig;
 

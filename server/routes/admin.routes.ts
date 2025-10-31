@@ -8,8 +8,8 @@ import {
 	logout,
 	refresh,
 	updateAdmin,
-} from "../controllers/admin";
-import { authToken } from "../middleware/jwt";
+} from "../controllers/admin.ts";
+import { authToken } from "../middleware/jwt.ts";
 
 const adminRouter = Router();
 

@@ -1,5 +1,5 @@
 import { PassThrough } from "stream";
-import { cloudinary } from "../middleware/multer";
+import { cloudinary } from "../middleware/multer.ts";
 
 interface CloudinaryUploadResult {
 	secure_url: string;

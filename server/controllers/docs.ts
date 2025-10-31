@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
-import { streamUpload } from "../config/cloudinary";
-import { DocumentModel } from "../models/Document.model";
+
+import { streamUpload } from "../config/cloudinary.ts";
+import { DocumentModel } from "../models/Document.model.ts";
 
 type ApiResponse<T = unknown> = {
   success: boolean;

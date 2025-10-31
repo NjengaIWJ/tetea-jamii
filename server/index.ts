@@ -2,21 +2,22 @@ import * as dotenv from 'dotenv';
 dotenv.config()
 
 import express, { type Request, type Response } from "express";
-import { createServer } from "http";
 import helmet from 'helmet';
 import cors from "cors";
 
-import { envConfig } from './config/env.config';
-import passport from './middleware/passport';
-import connectDB from './utils/db';
-import { formParser } from './middleware/multer';
-import sender from './utils/mailer';
-import adminRouter from './routes/admin.routes';
-import articlesRouter from './routes/articles.routes';
-import partnerRouter from './routes/partners.routes';
-import documentRouter from './routes/document.routes';
+import { envConfig } from './config/env.config.ts';
+import passport from './middleware/passport.ts';
+import connectDB from './utils/db.ts';
+import { formParser } from './middleware/multer.ts';
+import sender from './utils/mailer.ts';
+import adminRouter from './routes/admin.routes.ts';
+import articlesRouter from './routes/articles.routes.ts';
+import partnerRouter from './routes/partners.routes.ts';
+import documentRouter from './routes/document.routes.ts';
 
 const {PORT, frontendURL,mongoUri } = envConfig
+console.log(PORT, frontendURL, mongoUri, 'env');
+
 
 const app = express()
 
