@@ -1,9 +1,8 @@
-import type { AdminJwtPayload } from "../middleware/jwt.ts";
-
 declare global {
 	namespace Express {
 		interface Request {
-			admin?: AdminJwtPayload;
+			// Use an inline import type to avoid circular imports in declaration files
+			admin?: import("../middleware/jwt").AdminJwtPayload;
 		}
 	}
 }

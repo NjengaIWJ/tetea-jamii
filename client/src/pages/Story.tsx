@@ -9,7 +9,7 @@ type Params = { id: string };
 
 const Story: React.FC = () => {
   const { id } = useParams<Params>();
-  const { data, error, isError, isPending } = useGetInfo(`/articles/${id}`);
+  const { data, error, isError, isPending } = useGetInfo(`${import.meta.env.VITE_APP_ARTS_URL}/${id}`);
 
   // Guard: missing ID
   if (!id) {

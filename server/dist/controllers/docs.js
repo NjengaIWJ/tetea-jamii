@@ -69,8 +69,16 @@ const getDocumentById = async (req, res) => {
         if (!doc) {
             return res.status(404).json({ success: false, message: "Document not found" });
         }
-        // Redirect client to Cloudinary URL. This offloads bandwidth from your server.
-        return res.status(302).json({ success: true, data: { url: doc.cloudinaryUrl } });
+        return res.status(200).json({
+            success: true,
+            data: {
+                url: doc.cloudinaryUrl,
+                title: doc.title,
+                fileName: doc.fileName,
+                mimetype: doc.mimetype,
+                size: doc.size
+            }
+        });
     }
     catch (err) {
         console.error("getDocumentById error:", err);

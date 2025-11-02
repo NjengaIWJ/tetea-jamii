@@ -15,6 +15,7 @@ import useAdminStore from "./stores/admin.stores";
 import Docs from "./pages/docx";
 import { PageTransition } from "./components/PageTransition";
 import Home from "./pages/Home";
+import DocView from "./pages/doc";
 
 function AppContent() {
 	const { _hasHydrated } = useAdminStore();
@@ -76,6 +77,13 @@ function AppContent() {
 							<PageTransition>
 								<div className="container-fluid mx-auto">
 									<Docs />
+								</div>
+							</PageTransition>
+						} />
+						<Route path="/docs/:id" element={
+							<PageTransition>
+								<div className="container-fluid mx-auto">
+									<DocView />
 								</div>
 							</PageTransition>
 						} />

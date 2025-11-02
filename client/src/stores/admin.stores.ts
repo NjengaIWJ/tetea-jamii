@@ -64,8 +64,8 @@ const useAdminStore = create<AdminState>()(
 
 				const adminFlag = user.role === "admin";
 
-				// Store token
-				localStorage.setItem("token", token);
+				// Keep token in memory (axios defaults). Do NOT persist token to localStorage for XSS safety.
+				api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
 				set({
 					admin: user,
@@ -76,7 +76,8 @@ const useAdminStore = create<AdminState>()(
 			},
 
 			logout: () => {
-				localStorage.removeItem("token");
+				// Clear any in-memory auth header
+				delete api.defaults.headers.common["Authorization"];
 				set({
 					admin: null,
 					isAuthenticated: false,

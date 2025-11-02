@@ -27,7 +27,8 @@ const authToken = (req, res, next) => {
     }
     try {
         const payload = jsonwebtoken_1.default.verify(token, getJWTSecret());
-        req.user = payload;
+        // augmenting Request with a custom property — cast to any so TypeScript accepts the assignment
+        req.admin = payload;
         next();
     }
     catch (err) {

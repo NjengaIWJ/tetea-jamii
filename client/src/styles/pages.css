@@ -121,3 +121,7 @@
     padding: 3rem;
   }
 }
+
+input{
+  color:black !important;
+}

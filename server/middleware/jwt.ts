@@ -34,7 +34,8 @@ export const authToken = (req: Request, res: Response, next: NextFunction) => {
 
 	try {
 		const payload = jwt.verify(token, getJWTSecret()) as AdminJwtPayload;
-		req.user = payload;
+		// augmenting Request with a custom property — cast to any so TypeScript accepts the assignment
+		(req as any).admin = payload;
 		next();
 	} catch (err) {
 		return res.status(401).json({ message: "Invalid or expired token" });

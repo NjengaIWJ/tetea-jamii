@@ -15,8 +15,11 @@ const adminRouter = Router();
 
 adminRouter.post("/login", login);
 
+adminRouter.get('/refresh', refresh);
 adminRouter.get("/verify", authToken);
+
 adminRouter.use(authToken);
+
 adminRouter.route("/").get(getAdmins).post(createAdmin);
 
 adminRouter
@@ -25,7 +28,6 @@ adminRouter
 	.put(updateAdmin)
 	.delete(deleteAdmin);
 
-adminRouter.get('/refresh', refresh);
 
 adminRouter.post("/logout", logout);
 

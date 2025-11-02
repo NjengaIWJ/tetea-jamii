@@ -16,11 +16,9 @@ export const authConfig = {
     cookieOptions: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict' as const,
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-    // You might want to add refresh token settings here
-    refreshToken: {
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 24 * 60 * 60 * 1000,
+    }, refreshToken: {
         expiry: '7d',
         cookieName: 'refreshToken',
     },

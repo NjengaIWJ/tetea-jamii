@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 dotenv.config()
 
 import express, { type Request, type Response } from "express";
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import cors from "cors";
 
@@ -40,9 +41,12 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Parse cookies (required for cookie-based auth)
+app.use(cookieParser());
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser())
 app.use(passport.initialize());
 app.use(helmet());
 
@@ -69,10 +73,10 @@ app.get("/", (req: Request, res: Response) => {
 })()
 
 app.use("/api/sendEmail", formParser, sender);
-app.use("/api", adminRouter);
 app.use("/api", articlesRouter);
 app.use("/api", partnerRouter);
 app.use("/api", documentRouter);
+app.use("/api", adminRouter);
 
 app.use((err: Error, req: Request, res: Response, next: Function) => {
 	logger.error(err.stack || err.message, { error: err, route: req.path, method: req.method }

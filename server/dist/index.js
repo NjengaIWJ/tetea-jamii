@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const express_1 = __importDefault(require("express"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const helmet_1 = __importDefault(require("helmet"));
 const cors_1 = __importDefault(require("cors"));
 const env_config_1 = require("./config/env.config");
@@ -71,8 +72,11 @@ const corsOptions = {
     optionsSuccessStatus: 204
 };
 app.use((0, cors_1.default)(corsOptions));
+// Parse cookies (required for cookie-based auth)
+app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use((0, cookie_parser_1.default)());
 app.use(passport_1.default.initialize());
 app.use((0, helmet_1.default)());
 app.use(logger_1.winstonLog);
@@ -96,10 +100,10 @@ app.get("/", (req, res) => {
     }
 })();
 app.use("/api/sendEmail", multer_1.formParser, mailer_1.default);
-app.use("/api", admin_routes_1.default);
 app.use("/api", articles_routes_1.default);
 app.use("/api", partners_routes_1.default);
 app.use("/api", document_routes_1.default);
+app.use("/api", admin_routes_1.default);
 app.use((err, req, res, next) => {
     logger_1.default.error(err.stack || err.message, { error: err, route: req.path, method: req.method });
     res.status(500).send({ message: err.message });

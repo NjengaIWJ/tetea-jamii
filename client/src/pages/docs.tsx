@@ -1,6 +1,7 @@
 import type React from "react";
 import { useGetInfo } from "../api/api";
 import { LucideLoaderPinwheel } from "lucide-react";
+import { Link } from "react-router-dom";  
 
 interface Document {
   _id: string;
@@ -19,7 +20,7 @@ interface PaginationInfo {
   pages: number;
 }
 
-interface ApiResponse {
+export interface ApiResponse {
   success: boolean;
   data: {
     items: Document[];
@@ -69,15 +70,17 @@ const Docx: React.FC = () => {
                     <span className="text-sm text-gray-500">File: {doc.fileName}</span>
                     <span className="text-xs text-gray-400">Uploaded: {new Date(doc.uploadDate).toLocaleDateString()}</span>
                   </div>
-                  <a
+                  {/*     <a
                     href={doc.cloudinaryUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  >
+                  > */}
+                  <Link to={doc._id} className="mr-2">
                     View Document
-                  </a>
-                </div>
+                  </Link>
+                  {/*                   </a>
+ */}                </div>
               </li>
             ))}
           </ul>
