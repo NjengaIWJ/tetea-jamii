@@ -46,7 +46,7 @@ const sender = async (req, res) => {
             throw new Error("EMAIL_USER environment variable is not set");
         }
         const mail = {
-            from: `"Tujitegemee Contact" <${EMAIL_USER}>`,
+            from: `"Tetea Jamii Contact" <${EMAIL_USER}>`,
             to,
             replyTo: email,
             subject: `New Contact Message from ${email}`,
@@ -86,7 +86,7 @@ const sendEmail = async (req, res) => {
     }
     const { email, message } = req.body;
     const msg = {
-        from: `"Tujitegemee Contact" <${EMAIL_USER}>`,
+        from: `"Tetea Jamii Contact" <${EMAIL_USER}>`,
         to: SENDGRID_FROM,
         replyTo: email,
         subject: `New Contact Message from ${email}`,

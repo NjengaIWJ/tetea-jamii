@@ -1,7 +1,7 @@
 {
 	"name": "server",
 	"version": "1.0.0",
-	"description": "The server to TUJITEGEMEE",
+	"description": "The server to Tetea Jamii",
 	"keywords": [
 		"TypeScript",
 		"MongoDB",

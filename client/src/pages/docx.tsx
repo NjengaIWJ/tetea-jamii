@@ -4,6 +4,7 @@ import api from "../api/axios";
 import { Eraser, Loader2Icon } from "lucide-react";
 import Docx from './docs';
 import useAdminStore from "../stores/admin.stores";
+import { useLocation } from 'react-router-dom';
 /* import { usePostInfo } from "../api/api";
  */
 const Docs: React.FC = () => {
@@ -14,6 +15,7 @@ const Docs: React.FC = () => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const { admin } = useAdminStore();
+  const location = useLocation();
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -128,12 +130,12 @@ const Docs: React.FC = () => {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 py-12 px-4">
       <div className="max-w-4xl mx-auto mb-12">
         <Docx />
       </div>
-      {admin && location.pathname.startsWith('docs') && (<div className="max-w-2xl mx-auto p-8 bg-white shadow-lg rounded-lg border border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Upload Document</h2>
+      {admin && location.pathname.startsWith('docs') && (<div className="max-w-2xl mx-auto p-8 bg-white dark:bg-gray-800 shadow-lg rounded-2xl border border-gray-100">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Upload Document</h2>
         {isUploading && (
           <div className="mb-6 p-4 bg-blue-50 text-blue-700 rounded-lg flex items-center gap-3">
             <Loader2Icon size={20} className="animate-spin" /> {message || "Uploading document..."}
@@ -173,7 +175,7 @@ const Docs: React.FC = () => {
               required
               disabled={isUploading}
               ref={fileInputRef}
-              className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
+              className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50"
             />
             <p className="mt-1 text-sm text-gray-500">
               Maximum file size: 5MB. Allowed formats: PDF, Word, Text, Excel, PowerPoint, CSV

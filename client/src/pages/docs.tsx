@@ -2,6 +2,7 @@ import type React from "react";
 import { useGetInfo } from "../api/api";
 import { LucideLoaderPinwheel } from "lucide-react";
 import { Link } from "react-router-dom";  
+import Section from "../components/Section";
 
 interface Document {
   _id: string;
@@ -33,59 +34,47 @@ export interface ApiResponse {
 const Docx: React.FC = () => {
   const { data: apiResponse, error, isError, isPending } = useGetInfo<ApiResponse>(import.meta.env.VITE_APP_DOCS_URL);
 
-  if (isPending) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <LucideLoaderPinwheel className="animate-spin" />
-        <span className="ml-2">Loading documents...</span>
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <main className="bg-red-100 p-4 rounded-md">
-        <h2 className="text-lg font-semibold">Error</h2>
-        <p>{error instanceof Error ? error.message : "Unknown error"}</p>
-      </main>
-    );
-  }
-
   const documents = apiResponse?.data?.items ?? [];
 
   return (
-    <main className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-bold mb-6 text-gray-800">Documents</h2>
-      
-      <section className="space-y-4">
-        {documents.length === 0 ? (
-          <p className="text-gray-500 text-center p-8 bg-white rounded-lg shadow">No documents available.</p>
-        ) : (
-          <ul className="grid grid-cols-1 gap-6">
-            {documents.map((doc: Document) => (
-              <li key={doc._id} className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
-                <h3 className="text-xl font-semibold mb-3 text-gray-800">{doc.title}</h3>
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
-                  <div className="flex flex-col space-y-1">
-                    <span className="text-sm text-gray-500">File: {doc.fileName}</span>
-                    <span className="text-xs text-gray-400">Uploaded: {new Date(doc.uploadDate).toLocaleDateString()}</span>
-                  </div>
-                  {/*     <a
-                    href={doc.cloudinaryUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  > */}
-                  <Link to={doc._id} className="mr-2">
-                    View Document
-                  </Link>
-                  {/*                   </a>
- */}                </div>
-              </li>
-            ))}
-          </ul>
+    <main className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 py-8 px-4">
+      <Section size="lg">
+        <header className="text-center mb-6">
+          <h1 className="text-4xl font-extrabold text-green-900 dark:text-green-300">Documents & Resources</h1>
+          <p className="mt-2 text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">Browse reports, forms and resources produced by Tetea Jamii. Click a document to view it in the browser.</p>
+        </header>
+
+        {isPending && (
+          <div className="flex items-center justify-center p-8">
+            <LucideLoaderPinwheel className="animate-spin" />
+            <span className="ml-2">Loading documents...</span>
+          </div>
         )}
-      </section>
+
+        {isError && (
+          <div className="max-w-2xl mx-auto mb-6 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg">
+            <h3 className="font-semibold">Error</h3>
+            <p>{error instanceof Error ? error.message : "Unknown error"}</p>
+          </div>
+        )}
+
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {documents.length === 0 ? (
+            <div className="col-span-full text-center p-6 bg-white rounded-lg shadow">No documents available.</div>
+          ) : (
+              documents.map((doc: Document) => (
+                <article key={doc._id} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow hover:shadow-lg transition">
+                  <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">{doc.title}</h3>
+                  <p className="text-sm text-gray-500 mb-4">{doc.fileName} • {new Date(doc.uploadDate).toLocaleDateString()}</p>
+                  <div className="flex gap-3">
+                    <Link to={`/docs/${doc._id}`} className="inline-block px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700">View</Link>
+                    <a href={doc.cloudinaryUrl} target="_blank" rel="noopener noreferrer" className="inline-block px-4 py-2 border border-green-200 text-green-700 rounded-full hover:bg-green-50">Download</a>
+                  </div>
+                </article>
+              ))
+          )}
+        </section>
+      </Section>
     </main>
   );
 };

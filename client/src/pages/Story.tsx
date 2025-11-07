@@ -66,8 +66,12 @@ const Story: React.FC = () => {
     : [];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800 text-slate-900 dark:text-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <React.Fragment>
+      {selectedImage && (
+        <ImageModal url={selectedImage} onClose={() => setSelectedImage(null)} />
+      )}
+      <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800 text-slate-900 dark:text-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Hero Section with Featured Image */}
         <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] mb-12 rounded-2xl overflow-hidden shadow-2xl">
           <div className="absolute inset-0">
@@ -80,7 +84,7 @@ const Story: React.FC = () => {
           </div>
           <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-12 text-white">
             <div className="max-w-3xl">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight text-green-900 dark:text-green-300">
                 {data?.title}
               </h1>
               {data?.date && (
@@ -99,12 +103,17 @@ const Story: React.FC = () => {
           </div>
         </div>
 
+          <div className="mb-6 flex items-center gap-4">
+            <a href="/stories" className="text-sm text-green-700 dark:text-green-300">← Back to Stories</a>
+          </div>
+
         {/* Image Gallery */}
         {mediaItems.length > 1 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-12">
             {mediaItems.slice(1).map((url: string, i: number) => (
-              <div 
-                key={i} 
+              <button
+                key={i}
+                onClick={() => setSelectedImage(url)}
                 className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-100 dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300"
               >
                 <SkeletonImage
@@ -115,10 +124,10 @@ const Story: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                   <span className="text-white text-sm font-medium">
-                    View Image {i + 2}
+                    View Full Image
                   </span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -134,8 +143,7 @@ const Story: React.FC = () => {
         </article>
       </div>
     </main>
-
-    </main>
+    </React.Fragment>
   );
 };
 

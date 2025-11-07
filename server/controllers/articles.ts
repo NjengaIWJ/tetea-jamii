@@ -101,43 +101,102 @@ const getArticleById = async (req: Request, res: Response) => {
 
 const updateArticle = async (req: Request, res: Response) => {
 	const { id } = req.params;
-	const { title, content, media } = req.body;
+	const { title, content } = req.body;
+
+	if (!id || !Types.ObjectId.isValid(id)) {
+		return res.status(400).json({
+			success: false,
+			error: "Invalid article ID"
+		});
+	}
 
 	try {
-		const updates: { title?: string, content?: string, media?: string } = {}
+		const files = Array.isArray(req.files) ? req.files as Express.Multer.File[] : [];
+		const article = await Story.findById(id);
 
-		if (title) updates.title = title
-		if (content) updates.content = content
-		if (media) updates.media = media
+		if (!article) {
+			return res.status(404).json({
+				success: false,
+				error: "Article not found"
+			});
+		}
 
-		const article = await Story.findByIdAndUpdate(
-			Number(id),
+		const updates: { title?: string; content?: string; media?: string[] } = {};
+
+		if (title) updates.title = title.trim();
+		if (content) updates.content = content.trim();
+
+		if (files.length > 0) {
+			const mediaItems: { url: string; publicId: string }[] = [];
+			const uploadPromises = files.map(file => streamUpload(file));
+			const results = await Promise.all(uploadPromises);
+
+			for (const r of results) {
+				mediaItems.push({ url: r.secure_url, publicId: r.public_id });
+			}
+
+			updates.media = mediaItems.map(m => m.url);
+		}
+
+		const updatedArticle = await Story.findByIdAndUpdate(
+			id,
 			updates,
 			{ new: true }
 		);
 
-		res
-			.status(200)
-			.json({ article, message: `Article ${title} updated successfully` });
+		if (!updatedArticle) {
+			return res.status(500).json({
+				success: false,
+				error: "Failed to update article"
+			});
+		}
+
+		res.status(200).json({
+			success: true,
+			message: "Article updated successfully",
+			data: updatedArticle
+		});
 	} catch (error) {
 		console.error("Error updating article:", error);
-		res.status(500).json({ error: "Internal server error" });
+		res.status(500).json({
+			success: false,
+			error: error instanceof Error ? error.message : "Internal server error"
+		});
 	}
 };
 
 const deleteArticle = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
+	if (!id || !Types.ObjectId.isValid(id)) {
+		return res.status(400).json({
+			success: false,
+			error: "Invalid article ID"
+		});
+	}
+
 	try {
-		const article = await Story.findByIdAndDelete(Number(id));
+		const article = await Story.findById(id);
+
+		if (!article) {
+			return res.status(404).json({
+				success: false,
+				error: "Article not found"
+			});
+		}
+
+		await Story.findByIdAndDelete(id);
 
 		res.status(200).json({
-			article,
-			message: `Article ${article?.title} deleted successfully`,
+			success: true,
+			message: "Article deleted successfully"
 		});
 	} catch (error) {
 		console.error("Error deleting article:", error);
-		res.status(500).json({ error: "Internal server error" });
+		res.status(500).json({
+			success: false,
+			error: error instanceof Error ? error.message : "Internal server error"
+		});
 	}
 };
 

@@ -3,14 +3,17 @@ import React, {
 	useEffect,
 	useRef,
 	useState,
-	type ChangeEvent,
 	type FormEvent,
-	type DragEvent,
 } from "react";
-import { Link } from "react-router-dom";
-import { LucideLoaderPinwheel, X, UploadCloud } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { LucideLoaderPinwheel, X } from "lucide-react";
+import Section from "../components/Section";
+import StoryCard from "../components/StoryCard";
+import { EditStoryModal } from "../components/EditStoryModal";
+import DropZone from "../components/DropZone";
 
 import { useGetInfo, usePostInfo } from "../api/api";
+import api from "../api/axios";
 import { useToastStore } from "../stores/toast.store";
 import useAdminStore from "../stores/admin.stores";
 
@@ -28,17 +31,14 @@ interface Story {
 	media: string[];
 }
 
-interface PreviewItem {
-	id: string;
-	file: File;
-	url: string;
-}
+import type { EditFormData, PreviewItem } from '../components/EditStoryModal';
 
 const MAX_IMAGE_DIMENSION = 1920;
 const IMAGE_QUALITY = 0.8;
 const MAX_FILES = 8;
 
 const Stories: React.FC = () => {
+	const location = useLocation();
 	const { data, isError, error, isPending, refetch } = useGetInfo<StoryAPI[]>(import.meta.env.VITE_APP_ARTS_URL);
 	const {
 		mutate,
@@ -53,12 +53,13 @@ const Stories: React.FC = () => {
 	const [title, setTitle] = useState("");
 	const [content, setContent] = useState("");
 	const [previewItems, setPreviewItems] = useState<PreviewItem[]>([]);
+	const [editingId, setEditingId] = useState<string | null>(null);
+	const [editForm, setEditForm] = useState<EditFormData | null>(null);
+	const [editPending, setEditPending] = useState(false);
+	const [deletePendingId, setDeletePendingId] = useState<string | null>(null);
 
 	const urlSetRef = useRef<Set<string>>(new Set());
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
-	const dragCounterRef = useRef(0);
-	const [isDragging, setIsDragging] = useState(false);
-
 	// Helper: unique id
 	const makeId = useCallback(() => {
 		if (crypto?.randomUUID) return crypto.randomUUID();
@@ -183,18 +184,7 @@ const Stories: React.FC = () => {
 		[previewItems.length, compressImage, makeId, addToast]
 	);
 
-	const handleFilesChange = useCallback(
-		async (e: ChangeEvent<HTMLInputElement>) => {
-			const files = e.target.files;
-			if (!files || files.length === 0) {
-				e.target.value = "";
-				return;
-			}
-			await processFiles(files);
-			if (fileInputRef.current) fileInputRef.current.value = "";
-		},
-		[processFiles]
-	);
+
 
 	const handleRemovePreview = useCallback((id: string) => {
 		setPreviewItems((prev) => {
@@ -229,10 +219,10 @@ const Stories: React.FC = () => {
 			form.append("title", title);
 			form.append("content", content);
 			previewItems.forEach((pi) => {
-				form.append("article", pi.file);
+				if (pi.file) form.append("article", pi.file);
 			});
 
-			console.log('hello', form, 'hello');
+
 
 
 			mutate(form, {
@@ -250,95 +240,120 @@ const Stories: React.FC = () => {
 		[title, content, previewItems, mutate, refetch, clearForm, addToast]
 	);
 
-	// Drag & Drop handlers
-	const onDragEnter = useCallback((e: DragEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
-		dragCounterRef.current += 1;
-		setIsDragging(true);
-	}, []);
-
-	const onDragLeave = useCallback((e: DragEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
-		dragCounterRef.current -= 1;
-		if (dragCounterRef.current <= 0) {
-			dragCounterRef.current = 0;
-			setIsDragging(false);
+	const handleDelete = async (id: string) => {
+		if (!confirm('Delete story? This action cannot be undone.')) return;
+		setDeletePendingId(id);
+		try {
+			await api.delete(`/articles/${id}`);
+			addToast('Story deleted successfully!', 'success');
+			refetch?.();
+		} catch (err) {
+			console.error('Delete failed:', err);
+			addToast('Failed to delete story.', 'error');
+		} finally {
+			setDeletePendingId(null);
 		}
-	}, []);
+	};
 
-	const onDragOver = useCallback((e: DragEvent) => {
-		e.preventDefault();
-		e.dataTransfer.dropEffect = "copy";
-	}, []);
+	const handleEditSubmit = async () => {
+		if (!editingId || !editForm) return;
+		setEditPending(true);
+		try {
+			const fd = new FormData();
+			fd.append('title', editForm.title);
+			fd.append('content', editForm.content);
 
-	const onDrop = useCallback(
-		async (e: DragEvent<HTMLDivElement>) => {
-			e.preventDefault();
-			e.stopPropagation();
-			setIsDragging(false);
-			dragCounterRef.current = 0;
-			const files = e.dataTransfer.files;
-			if (files && files.length > 0) {
-				await processFiles(files);
+			// Handle image updates if any new files were added
+			const newFiles = editForm.previewItems.filter(pi => pi.file);
+			newFiles.forEach(pi => {
+				if (pi.file) fd.append('article', pi.file);
+			});
+
+			await api.put(`/articles/${editingId}`, fd);
+			addToast('Story updated successfully!', 'success');
+			refetch?.();
+			setEditingId(null);
+			setEditForm(null);
+		} catch (err) {
+			console.error('Update failed:', err);
+			addToast('Failed to update story.', 'error');
+		} finally {
+			setEditPending(false);
+		}
+	};
+
+	const handleEditPreviewAdd = async (files: FileList | File[]) => {
+		if (!editForm) return;
+		const arr = Array.from(files);
+		if (editForm.previewItems.length + arr.length > MAX_FILES) {
+			addToast(`You can only upload up to ${MAX_FILES} images.`, 'error');
+			return;
+		}
+		const newPreviews: PreviewItem[] = [];
+		for (const file of arr) {
+			const compressed = await compressImage(file);
+			const url = URL.createObjectURL(compressed);
+			urlSetRef.current.add(url);
+			const id = `${makeId()}-${compressed.name}-${compressed.size}`;
+			newPreviews.push({ id, file: compressed, url });
+		}
+		setEditForm(old => old ? {
+			...old,
+			previewItems: [...old.previewItems, ...newPreviews]
+		} : null);
+	};
+
+	const handleEditPreviewRemove = (id: string) => {
+		if (!editForm) return;
+		setEditForm(old => {
+			if (!old) return null;
+			const item = old.previewItems.find(pi => pi.id === id);
+			if (item?.url.startsWith('blob:')) {
+				URL.revokeObjectURL(item.url);
+				urlSetRef.current.delete(item.url);
 			}
-		},
-		[processFiles]
-	);
+			return {
+				...old,
+				previewItems: old.previewItems.filter(pi => pi.id !== id)
+			};
+		});
+	};
 
 	// Sub-components
 	const PreviewGrid: React.FC = () => (
 		<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
 			{previewItems.map((pi) => (
-				<div key={pi.id} className="relative group overflow-hidden rounded-lg shadow-lg bg-gray-800">
+				<div key={pi.id} className="relative group overflow-hidden rounded-lg shadow-lg bg-white dark:bg-gray-800">
 					<img
 						src={pi.url}
-						alt={pi.file.name}
+						alt={pi.file?.name || 'Story preview image'}
 						className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110"
 						loading="lazy"
 					/>
 					<button
 						type="button"
-						aria-label={`Remove ${pi.file.name}`}
+						aria-label={`Remove ${pi.file?.name || 'preview image'}`}
 						onClick={() => handleRemovePreview(pi.id)}
-						className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+						className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
 					>
 						<X size={24} className="text-white" />
 					</button>
-					<div className="absolute bottom-0 left-0 w-full bg-black/60 px-2 py-1 text-xs text-white truncate">
-						{pi.file.name}
+					<div className="absolute bottom-0 left-0 w-full bg-white/80 dark:bg-gray-900/80 px-2 py-1 text-xs text-gray-800 dark:text-gray-100 truncate">
+						{pi.file?.name || 'Uploaded image'}
 					</div>
 				</div>
 			))}
 		</div>
 	);
 
-	const StoryCard: React.FC<{ story: Story }> = ({ story }) => (
-		<Link
-			to={`/stories/${story.id}`}
-			className="group block bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-gray-700 rounded-2xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-200 overflow-hidden border border-green-100 dark:border-gray-700"
-		>
-			{story.media.length > 0 && (
-				<div className="h-48 overflow-hidden">
-					<img
-						src={story.media[0]}
-						alt={`${story.title} thumbnail`}
-						className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-						loading="lazy"
-					/>
-				</div>
-			)}
-			<div className="p-5">
-				<h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-2">{story.title}</h2>
-				<p className="text-gray-600 dark:text-gray-300 line-clamp-3">{story.content}</p>
-			</div>
-		</Link>
-	);
+	// Using shared StoryCard component for consistency and reuse
 
 	return (
-		<main className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 text-gray-800 dark:text-gray-100 p-6 flex flex-col items-center">
-			<h1 className="text-4xl font-bold mb-8 text-[#15803d] dark:text-white m-4 p-4">Stories</h1>
+		<main className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 text-gray-800 dark:text-gray-100 p-4 flex flex-col items-center">
+			<Section size="xl" as="header" className="text-center mb-6">
+				<h1 className="text-4xl sm:text-5xl font-extrabold text-green-900 dark:text-green-300">Stories from Our Community</h1>
+				<p className="mt-3 text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">Read personal accounts of change, resilience, and hope from Takaungu and surrounding areas. If you're part of our team, share a story to inspire others.</p>
+			</Section>
 
 			{isError && (
 				<div
@@ -361,16 +376,53 @@ const Stories: React.FC = () => {
 				</div>
 			)}
 
-			<section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-8">
-					{stories.length > 0 ? stories.map((story) => (
-						<StoryCard key={story.id} story={story} />
-					)) : (
-						<p className="text-gray-600 dark:text-gray-400 text-center col-span-full p-8 bg-white dark:bg-gray-800 rounded-lg border border-green-100 dark:border-gray-700">No stories available.</p>
-				)}
-			</section>
+			<Section size="lg" as="section">
+				<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6 w-full">
+					{stories.length > 0 ? (
+						stories.map((story) => (
+							<StoryCard
+								key={story.id}
+								story={story}
+								onEdit={admin ? () => {
+									setEditingId(story.id);
+									setEditForm({
+										title: story.title,
+										content: story.content,
+										previewItems: story.media.map((url, i) => ({
+											id: `existing-${story.id}-${i}`,
+											file: null as File | null,
+											url
+										}))
+									});
+								} : undefined}
+								onDelete={admin ? () => handleDelete(story.id) : undefined}
+								isDeleting={deletePendingId === story.id}
+							/>
+						))
+					) : (
+						<p className="text-gray-600 dark:text-gray-400 text-center col-span-full p-6 bg-white dark:bg-gray-800 rounded-lg border border-green-100 dark:border-gray-700">No stories available.</p>
+					)}
+				</div>
+			</Section>
 
+			<EditStoryModal
+				form={editForm}
+				maxFiles={MAX_FILES}
+				isOpen={Boolean(editingId && editForm)}
+				isPending={editPending}
+				onClose={() => {
+					setEditingId(null);
+					setEditForm(null);
+				}}
+				onSubmit={handleEditSubmit}
+				onFormChange={setEditForm}
+				onFilesAdded={handleEditPreviewAdd}
+				onFileRemove={handleEditPreviewRemove}
+			/>
+
+			{/* Create Form */}
 				{admin && location.pathname.startsWith('/stories') && (
-				<form onSubmit={handleSubmit} encType="multipart/form-data" className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 space-y-6 border border-green-100 dark:border-gray-700" aria-busy={isPostPending}>
+				<form onSubmit={handleSubmit} encType="multipart/form-data" className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow p-4 space-y-6 border border-green-100 dark:border-gray-700" aria-busy={isPostPending}>
 					<div>
 						<label htmlFor="title" className="block text-md font-medium mb-2 text-gray-700 dark:text-gray-200">Title</label>
 						<input
@@ -381,39 +433,15 @@ const Stories: React.FC = () => {
 							onChange={(e) => setTitle(e.target.value)}
 							required
 							disabled={isPostPending}
-							className="w-full px-4 py-2 rounded-lg bg-gray-700 dark:bg-gray-900 text-white dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+							className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
 						/>
 					</div>
 
-					<div
-						onDragEnter={onDragEnter}
-						onDragLeave={onDragLeave}
-						onDragOver={onDragOver}
-						onDrop={onDrop}
-						className={`
-              relative flex flex-col items-center justify-center w-full p-6 rounded-lg cursor-pointer border-2 border-dashed transition-all duration-200
-              ${isDragging
-								? "border-blue-400 bg-gray-700/50"
-								: "border-gray-600 bg-gray-800"}
-              hover:border-blue-500 hover:bg-gray-700/80
-            `}
-					>
-						<UploadCloud size={40} className="text-gray-400 mb-3" aria-hidden="true" />
-						<p className="text-lg font-medium text-gray-200">
-							Drag & drop images here, or{" "}
-							<span className="text-blue-400 underline">click to browse</span>
-						</p>
-						<p className="mt-1 text-sm text-gray-400">PNG, JPG, WebP (up to {MAX_FILES} images)</p>
-						<input
-							ref={fileInputRef}
-							type="file"
-							accept="image/*"
-							multiple
-							onChange={handleFilesChange}
-							disabled={isPostPending}
-							className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-						/>
-					</div>
+					<DropZone
+						onFilesAdded={processFiles}
+						disabled={isPostPending}
+						maxFiles={MAX_FILES}
+					/>
 
 					{previewItems.length > 0 && <PreviewGrid />}
 
@@ -427,7 +455,7 @@ const Stories: React.FC = () => {
 							required
 							rows={5}
 							disabled={isPostPending}
-							className="w-full px-4 py-2 rounded-lg bg-gray-700 dark:bg-gray-900 text-white dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+							className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
 						/>
 					</div>
 
@@ -435,11 +463,11 @@ const Stories: React.FC = () => {
 						type="submit"
 						disabled={isPostPending}
 						className={`
-              w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-600 text-white font-semibold shadow-lg transition-all duration-200
-              ${isPostPending
+								w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-green-600 text-white font-semibold shadow-lg transition-all duration-200
+								${isPostPending
 								? "opacity-60 cursor-not-allowed"
-								: "hover:bg-blue-700 hover:shadow-xl transform hover:-translate-y-0.5"}
-            `}
+								: "hover:bg-green-700 hover:shadow-xl transform hover:-translate-y-0.5"}
+							`}
 					>
 						{isPostPending ? (
 							<>

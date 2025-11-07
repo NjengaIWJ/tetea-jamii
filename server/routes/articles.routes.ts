@@ -18,7 +18,7 @@ articlesRouter
 articlesRouter
 	.route("/articles/:id")
 	.get(getArticleById)
-	.put(updateArticle)
+	.put(uploads.array("article"), updateArticle)
 	.delete(deleteArticle);
 
 export default articlesRouter;

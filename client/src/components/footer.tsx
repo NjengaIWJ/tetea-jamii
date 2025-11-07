@@ -7,13 +7,13 @@ const Footer: React.FC = () => {
         <div className="flex flex-col gap-2 font-light">
           <p>tel: +250 788 123 456</p>
           <p>
-            email: <a href="mailto:tujitegemee@gm.com" className="text-blue-600 hover:underline">tujitegemee@gm.com</a>
+            email: <a href="mailto:teteajamii@gm.com" className="text-blue-600 hover:underline">teteajamii@gm.com</a>
           </p>
         </div>
 
         <div className="flex flex-row gap-4 items-center justify-start md:justify-end">
           <a
-            href="https://www.facebook.com/tujitegemee"
+            href="https://www.facebook.com/teteajamii"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-600 hover:text-blue-800 transition-colors"
@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
             Facebook
           </a>
           <a
-            href="https://www.twitter.com/tujitegemee"
+            href="https://www.twitter.com/teteajamii"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-600 hover:text-blue-500 transition-colors"
@@ -31,7 +31,7 @@ const Footer: React.FC = () => {
             Twitter
           </a>
           <a
-            href="https://www.instagram.com/tujitegemee"
+            href="https://www.instagram.com/teteajamii"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-600 hover:text-pink-500 transition-colors"
@@ -40,7 +40,7 @@ const Footer: React.FC = () => {
             Instagram
           </a>
           <a
-            href="https://www.linkedin.com/company/tujitegemee"
+            href="https://www.linkedin.com/company/teteajamii"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-600 hover:text-blue-600 transition-colors"

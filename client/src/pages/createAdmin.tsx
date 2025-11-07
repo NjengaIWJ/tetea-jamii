@@ -9,8 +9,14 @@ const LoginURL = import.meta.env.VITE_APP_LOGINURL as string
 const LogoutURL = import.meta.env.VITE_APP_LOGOUTURL as string
 const RegisterURL = import.meta.env.VITE_APP_REGISTERURL as string
 
+interface AuthFormData {
+  email: string;
+  password: string;
+  username?: string;
+}
+
 const Login: React.FC = () => {
-  const [data, setData] = useState({ email: '', password: '' })
+  const [formData, setFormData] = useState<AuthFormData>({ email: '', password: '' })
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const navigate = useNavigate()
   const isAuthenticated = useAdminStore(state => !!state.isAuthenticated)
@@ -44,15 +50,15 @@ const Login: React.FC = () => {
     setErrorMsg(null)
     reset()
 
-    const formData = {
-      username: data.email,
-      email: data.email,
-      password: data.password
+    const payload = {
+      username: formData.email,
+      email: formData.email,
+      password: formData.password
     }
 
-    mutate(formData, {
+    mutate(payload, {
       onSuccess: () => {
-        setData({ email: '', password: '' })
+        setFormData({ email: '', password: '' })
         navigate('/')
       },
       onError: (err: unknown) => {
@@ -99,8 +105,8 @@ const Login: React.FC = () => {
             placeholder='Please input your email'
             type='email'
             className={`input-base ${errorMsg ? 'border-red-400' : ''}`}
-            value={data.email}
-            onChange={e => setData({ ...data, email: e.target.value })}
+            value={formData.email}
+            onChange={e => setFormData({ ...formData, email: e.target.value })}
             autoComplete="username"
             required
           />
@@ -114,8 +120,8 @@ const Login: React.FC = () => {
               placeholder='Please input your password'
               type={showPassword ? 'text' : 'password'}
               className={`input-base ${errorMsg ? 'border-red-400' : ''}`}
-              value={data.password}
-              onChange={e => setData({ ...data, password: e.target.value })}
+              value={formData.password}
+              onChange={e => setFormData({ ...formData, password: e.target.value })}
               autoComplete="current-password"
               required
             />
@@ -152,8 +158,12 @@ const Nav: React.FC = () => {
   )
 }
 
+interface RegisterFormData extends AuthFormData {
+  username: string;
+}
+
 export const Register: React.FC = () => {
-  const [data, setData] = useState({ email: '', password: '', username: '' })
+  const [formData, setFormData] = useState<RegisterFormData>({ email: '', password: '', username: '' })
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const navigate = useNavigate()
   const isAuthenticated = useAdminStore(state => !!state.isAuthenticated)
@@ -189,13 +199,18 @@ export const Register: React.FC = () => {
     setErrorMsg(null)
     reset()
 
-    const formData = {
-      username: data.username,
-      email: data.email,
-      password: data.password
+    const payload = {
+      username: formData.username,
+      email: formData.email,
+      password: formData.password
     }
 
-    mutate(formData)
+    mutate(payload, {
+      onSuccess: () => {
+        setFormData({ email: '', password: '', username: '' })
+        navigate('/')
+      }
+    })
   }
 
   return (
@@ -223,11 +238,11 @@ export const Register: React.FC = () => {
             Username
           </label>
           <input
-            placeholder='Please input your email'
-            type='email'
+            placeholder='Please input your username'
+            type='text'
             className={`input-base ${errorMsg ? 'border-red-400' : ''}`}
-            value={data.username}
-            onChange={e => setData({ ...data, username: e.target.value })}
+            value={formData.username}
+            onChange={e => setFormData({ ...formData, username: e.target.value })}
             autoComplete="username"
             required
           />
@@ -240,9 +255,9 @@ export const Register: React.FC = () => {
             placeholder='Please input your email'
             type='email'
             className={`input-base ${errorMsg ? 'border-red-400' : ''}`}
-            value={data.email}
-            onChange={e => setData({ ...data, email: e.target.value })}
-            autoComplete="username"
+            value={formData.email}
+            onChange={e => setFormData({ ...formData, email: e.target.value })}
+            autoComplete="email"
             required
           />
 
@@ -255,9 +270,9 @@ export const Register: React.FC = () => {
               placeholder='Please input your password'
               type={showPassword ? 'text' : 'password'}
               className={`input-base ${errorMsg ? 'border-red-400' : ''}`}
-              value={data.password}
-              onChange={e => setData({ ...data, password: e.target.value })}
-              autoComplete="current-password"
+              value={formData.password}
+              onChange={e => setFormData({ ...formData, password: e.target.value })}
+              autoComplete="new-password"
               required
             />
             {showPassword === false ? (

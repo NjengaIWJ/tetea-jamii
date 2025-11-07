@@ -52,7 +52,7 @@ const sender = async (req: Request, res: Response) => {
 		}
 
 		const mail = {
-			from: `"Tujitegemee Contact" <${EMAIL_USER}>`,
+			from: `"Tetea Jamii Contact" <${EMAIL_USER}>`,
 			to,
 			replyTo: email,
 			subject: `New Contact Message from ${email}`,
@@ -100,7 +100,7 @@ export const sendEmail = async (req: Request, res: Response) => {
 	const { email, message } = req.body;
 
 	const msg = {
-		from: `"Tujitegemee Contact" <${EMAIL_USER}>`,
+		from: `"Tetea Jamii Contact" <${EMAIL_USER}>`,
 		to: SENDGRID_FROM,
 		replyTo: email,
 		subject: `New Contact Message from ${email}`,

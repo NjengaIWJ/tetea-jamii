@@ -1,7 +1,8 @@
 import * as dotenv from 'dotenv';
 dotenv.config()
 
-import express, { type Request, type Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
+import { errorHandler, ApiError } from "./middleware/errorHandler";
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import cors from "cors";
@@ -78,17 +79,16 @@ app.use("/api", partnerRouter);
 app.use("/api", documentRouter);
 app.use("/api", adminRouter);
 
-app.use((err: Error, req: Request, res: Response, next: Function) => {
-	logger.error(err.stack || err.message, { error: err, route: req.path, method: req.method }
-
-	)
-	res.status(500).send({ message: err.message });
+// Not found handler
+app.use((req: Request, res: Response, next: NextFunction) => {
+	const error = new Error(`Route ${req.method} ${req.url} not found`) as ApiError;
+	error.statusCode = 404;
+	error.code = 'NOT_FOUND';
+	next(error);
 });
 
-app.use((req: Request, res: Response) => {
-	logger.warn(`404 Not Found - ${req.method} ${req.url}`, { route: req.path, method: req.method });
-	res.status(404).send({ message: "Endpoint not found" });
-});
+// Global error handler
+app.use(errorHandler);
 
 const port = Number(PORT)
 

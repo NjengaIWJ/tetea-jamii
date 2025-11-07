@@ -115,7 +115,7 @@ const Navbar: React.FC = () => {
 					<div className="flex items-center gap-4 w-full md:w-auto">
 						<img
 							src={logo}
-							alt="Tujitegemee — community support logo"
+							alt="Tetea Jamii — community support logo"
 							className="h-10 w-10 md:h-12 md:w-12 rounded-full object-cover"
 						/>
 						<div>
@@ -136,31 +136,31 @@ const Navbar: React.FC = () => {
 							</a>
 							<a
 								className="hover:text-primary transition-colors ml-2"
-								href="mailto:tujitegemee@gm.com"
+								href="mailto:teteajamii@gm.com"
 								aria-label="Email"
 							>
-								tujitegemee@gm.com
+								teteajamii@gm.com
 							</a>
 						</div>
 
 						<div className="ml-auto flex items-center gap-3 flex-wrap md:gap-2">
 							<ExternalLink
-								href="https://www.facebook.com/tujitegemee"
+								href="https://www.facebook.com/teteajamii"
 								label="Facebook"
 								Icon={<Facebook size={16} />}
 							/>
 							<ExternalLink
-								href="https://www.twitter.com/tujitegemee"
+								href="https://www.twitter.com/teteajamii"
 								label="Twitter"
 								Icon={<Twitter size={16} />}
 							/>
 							<ExternalLink
-								href="https://www.instagram.com/tujitegemee"
+								href="https://www.instagram.com/teteajamii"
 								label="Instagram"
 								Icon={<Instagram size={16} />}
 							/>
 							<ExternalLink
-								href="https://www.linkedin.com/company/tujitegemee"
+								href="https://www.linkedin.com/company/teteajamii"
 								label="LinkedIn"
 								Icon={<Linkedin size={16} />}
 							/>

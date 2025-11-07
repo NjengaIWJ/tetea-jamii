@@ -50,60 +50,47 @@ interface PdfViewerProps {
   url: string;
 }
 
-const PdfViewer: React.FC<PdfViewerProps> = ({ url }) => (
-  <div style={{ width: "100%", height: "100vh" }}>
-    <iframe
-      src={url}
-      title="Document Viewer"
-      style={{ width: "100%", height: "100%", border: "none" }}
-    />
-  </div>
-);
+const ResponsiveViewer: React.FC<PdfViewerProps> = ({ url }) => {
+  if (!url) return null;
 
-interface DocViewerProps {
-  doc: Doc;
-}
+  const lower = url.toLowerCase();
+  const isPdf = lower.endsWith(".pdf");
+  const isImage = lower.match(/\.(jpeg|jpg|png|gif|webp)$/);
 
-const DocViewer: React.FC<DocViewerProps> = ({ doc }) => {
-  if (!doc) {
-    return <ErrorMessage message="Document data is missing." />;
+  // For PDFs show an iframe that fits the container; for images show responsive img.
+  // For other types (docx, pptx) attempt Google Docs viewer; otherwise provide direct link.
+  if (isPdf) {
+    return (
+      <div className="w-full min-h-[60vh] md:min-h-[80vh]">
+        <iframe src={url} title="PDF Viewer" className="w-full h-full border-0" />
+      </div>
+    );
   }
 
-  const { title, media = [], content } = doc;
-  const firstMedia = media.length > 0 ? media[0] : undefined;
-  const isPdf = firstMedia?.toLowerCase().endsWith(".pdf");
+  if (isImage) {
+    return (
+      <div className="w-full">
+        <img src={url} alt="document preview" className="w-full h-auto rounded-lg object-cover" />
+      </div>
+    );
+  }
 
+  // attempt Google Docs viewer for other formats
+  const googleViewer = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-5 border border-green-100 dark:border-gray-700">
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-        {title}
-      </h1>
-
-      {firstMedia && (
-        <div className="mb-6">
-          {isPdf ? (
-            <PdfViewer url={firstMedia} />
-          ) : (
-            <img
-              src={firstMedia}
-              alt={`${title} preview`}
-              className="w-full h-auto object-cover rounded-lg"
-              loading="lazy"
-            />
-          )}
-        </div>
-      )}
-
-      <div className="prose dark:prose-invert text-gray-700 dark:text-gray-300">
-        {content}
+    <div className="w-full min-h-[60vh] md:min-h-[80vh] bg-gray-50 rounded-lg overflow-hidden">
+      <iframe src={googleViewer} title="Document Viewer" className="w-full h-full border-0" />
+      <div className="mt-2 text-sm">
+        <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600">Open original</a>
       </div>
     </div>
   );
 };
 
+/* DocViewer intentionally inlined inside DocView (to keep structure simple) */
+
 const DocView: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
-
   const { data, error, isError, isPending } = useGetInfo<Doc | Doc[]>(
     `${import.meta.env.VITE_APP_DOCS_URL}/${id}`
   );
@@ -112,14 +99,8 @@ const DocView: React.FC = () => {
     return <ErrorMessage message="No document ID provided in the URL." />;
   }
 
-  console.log("data", data);
-
   if (isError) {
-    return (
-      <ErrorMessage
-        message={error?.message ?? "Something went wrong fetching the document."}
-      />
-    );
+    return <ErrorMessage message={error?.message ?? "Something went wrong fetching the document."} />;
   }
 
   if (isPending) {
@@ -130,12 +111,58 @@ const DocView: React.FC = () => {
     return <ErrorMessage message="No document found." />;
   }
 
+  // If API returned a list, show cards; otherwise show viewer
+  if (Array.isArray(data)) {
+    return (
+      <main className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          <header className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-green-900 dark:text-green-300">Documents</h1>
+            <p className="mt-2 text-gray-700 dark:text-gray-300">Select a document to view.</p>
+          </header>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {data.map((doc) => <DocCard key={doc.id} doc={doc} />)}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // Single document view
+  const doc = data as Doc;
+  const firstMedia = doc.media?.[0];
+
   return (
-    <div className="space-y-4">
-      {Array.isArray(data)
-        ? data.map((doc) => <DocCard key={doc.id} doc={doc} />)
-        : <DocViewer doc={data} />}
-    </div>
+    <main className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 py-12 px-4">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold text-green-900 dark:text-green-300">{doc.title}</h1>
+            <p className="text-sm text-gray-500">Document details and viewer</p>
+          </div>
+          <div className="flex gap-3">
+            {firstMedia && (
+              <a href={firstMedia} target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-full bg-white border border-green-200 text-green-700">Open original</a>
+            )}
+            <a href={`/docs`} className="px-4 py-2 rounded-full bg-green-600 text-white">Back to Documents</a>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow">
+          {firstMedia ? (
+            <div className="mb-6">
+              <ResponsiveViewer url={firstMedia} />
+            </div>
+          ) : (
+            <div className="p-6 text-center text-gray-600">No preview available. You can download the document to view it.</div>
+          )}
+
+          <div className="prose dark:prose-invert text-gray-700 dark:text-gray-300">
+            {doc.content}
+          </div>
+        </div>
+      </div>
+    </main>
   );
 };
 

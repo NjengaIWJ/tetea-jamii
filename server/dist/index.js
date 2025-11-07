@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const express_1 = __importDefault(require("express"));
+const errorHandler_1 = require("./middleware/errorHandler");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const helmet_1 = __importDefault(require("helmet"));
 const cors_1 = __importDefault(require("cors"));
@@ -104,14 +105,15 @@ app.use("/api", articles_routes_1.default);
 app.use("/api", partners_routes_1.default);
 app.use("/api", document_routes_1.default);
 app.use("/api", admin_routes_1.default);
-app.use((err, req, res, next) => {
-    logger_1.default.error(err.stack || err.message, { error: err, route: req.path, method: req.method });
-    res.status(500).send({ message: err.message });
+// Not found handler
+app.use((req, res, next) => {
+    const error = new Error(`Route ${req.method} ${req.url} not found`);
+    error.statusCode = 404;
+    error.code = 'NOT_FOUND';
+    next(error);
 });
-app.use((req, res) => {
-    logger_1.default.warn(`404 Not Found - ${req.method} ${req.url}`, { route: req.path, method: req.method });
-    res.status(404).send({ message: "Endpoint not found" });
-});
+// Global error handler
+app.use(errorHandler_1.errorHandler);
 const port = Number(PORT);
 if (process.env.VERCEL !== `1`) {
     app.listen(port, '0.0.0.0', () => {
