@@ -9,7 +9,7 @@ import { useLocation } from "react-router-dom";
 import { LucideLoaderPinwheel, X } from "lucide-react";
 import Section from "../components/Section";
 import StoryCard from "../components/StoryCard";
-import { EditStoryModal } from "../components/EditStoryModal";
+import EditStoryModal from "../components/EditStoryModal";
 import DropZone from "../components/DropZone";
 
 import { useGetInfo, usePostInfo } from "../api/api";
@@ -323,7 +323,7 @@ const Stories: React.FC = () => {
 	const PreviewGrid: React.FC = () => (
 		<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
 			{previewItems.map((pi) => (
-				<div key={pi.id} className="relative group overflow-hidden rounded-lg shadow-lg bg-white dark:bg-gray-800">
+				<div key={pi.id} className="relative group overflow-hidden rounded-lg shadow-lg bg-surface-2">
 					<img
 						src={pi.url}
 						alt={pi.file?.name || 'Story preview image'}
@@ -338,7 +338,7 @@ const Stories: React.FC = () => {
 					>
 						<X size={24} className="text-white" />
 					</button>
-					<div className="absolute bottom-0 left-0 w-full bg-white/80 dark:bg-gray-900/80 px-2 py-1 text-xs text-gray-800 dark:text-gray-100 truncate">
+					<div className="absolute bottom-0 left-0 w-full bg-surface-2 px-2 py-1 text-xs text-primary-var truncate">
 						{pi.file?.name || 'Uploaded image'}
 					</div>
 				</div>
@@ -349,10 +349,10 @@ const Stories: React.FC = () => {
 	// Using shared StoryCard component for consistency and reuse
 
 	return (
-		<main className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 text-gray-800 dark:text-gray-100 p-4 flex flex-col items-center">
+		<main className="min-h-screen bg-surface text-primary-var p-4 flex flex-col items-center">
 			<Section size="xl" as="header" className="text-center mb-6">
-				<h1 className="text-4xl sm:text-5xl font-extrabold text-green-900 dark:text-green-300">Stories from Our Community</h1>
-				<p className="mt-3 text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">Read personal accounts of change, resilience, and hope from Takaungu and surrounding areas. If you're part of our team, share a story to inspire others.</p>
+				<h1 className="text-4xl sm:text-5xl font-extrabold text-accent">Stories from Our Community</h1>
+				<p className="mt-3 text-secondary-var max-w-2xl mx-auto">Read personal accounts of change, resilience, and hope from Takaungu and surrounding areas. If you're part of our team, share a story to inspire others.</p>
 			</Section>
 
 			{isError && (
@@ -400,7 +400,7 @@ const Stories: React.FC = () => {
 							/>
 						))
 					) : (
-						<p className="text-gray-600 dark:text-gray-400 text-center col-span-full p-6 bg-white dark:bg-gray-800 rounded-lg border border-green-100 dark:border-gray-700">No stories available.</p>
+							<p className="text-secondary-var text-center col-span-full p-6 bg-surface-2 rounded-lg border border-surface">No stories available.</p>
 					)}
 				</div>
 			</Section>
@@ -422,9 +422,9 @@ const Stories: React.FC = () => {
 
 			{/* Create Form */}
 				{admin && location.pathname.startsWith('/stories') && (
-				<form onSubmit={handleSubmit} encType="multipart/form-data" className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow p-4 space-y-6 border border-green-100 dark:border-gray-700" aria-busy={isPostPending}>
+				<form onSubmit={handleSubmit} encType="multipart/form-data" className="w-full max-w-2xl bg-surface-2 rounded-2xl shadow p-4 space-y-6 border border-surface" aria-busy={isPostPending}>
 					<div>
-						<label htmlFor="title" className="block text-md font-medium mb-2 text-gray-700 dark:text-gray-200">Title</label>
+						<label htmlFor="title" className="block text-md font-medium mb-2 text-primary-var">Title</label>
 						<input
 							id="title"
 							type="text"
@@ -433,7 +433,7 @@ const Stories: React.FC = () => {
 							onChange={(e) => setTitle(e.target.value)}
 							required
 							disabled={isPostPending}
-							className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+							className="input-base"
 						/>
 					</div>
 
@@ -446,7 +446,7 @@ const Stories: React.FC = () => {
 					{previewItems.length > 0 && <PreviewGrid />}
 
 					<div>
-						<label htmlFor="content" className="block text-md font-medium mb-2">Content</label>
+						<label htmlFor="content" className="block text-md font-medium mb-2 text-primary-var">Content</label>
 						<textarea
 							id="content"
 							placeholder="Tell your story..."
@@ -455,19 +455,14 @@ const Stories: React.FC = () => {
 							required
 							rows={5}
 							disabled={isPostPending}
-							className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+							className="input-base"
 						/>
 					</div>
 
 					<button
 						type="submit"
 						disabled={isPostPending}
-						className={`
-								w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-green-600 text-white font-semibold shadow-lg transition-all duration-200
-								${isPostPending
-								? "opacity-60 cursor-not-allowed"
-								: "hover:bg-green-700 hover:shadow-xl transform hover:-translate-y-0.5"}
-							`}
+						className={"btn btn-primary w-full"}
 					>
 						{isPostPending ? (
 							<>

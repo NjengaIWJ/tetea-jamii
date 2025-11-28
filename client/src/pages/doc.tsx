@@ -22,7 +22,7 @@ const DocCard: React.FC<DocCardProps> = ({ doc }) => {
   return (
     <Link
       to={`/docs/${doc.id}`}
-      className="group block bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-gray-700 rounded-2xl shadow-md hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 overflow-hidden border border-green-100 dark:border-gray-700"
+      className="group block bg-surface-2 dark:bg-surface-3 rounded-2xl shadow-md hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 overflow-hidden border border-surface"
     >
       {thumbnailUrl && (
         <div className="h-48 overflow-hidden">
@@ -35,10 +35,10 @@ const DocCard: React.FC<DocCardProps> = ({ doc }) => {
         </div>
       )}
       <div className="p-5">
-        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+        <h2 className="text-2xl font-semibold text-primary-var mb-2">
           {doc.title}
         </h2>
-        <p className="text-gray-600 dark:text-gray-300 line-clamp-3">
+        <p className="text-secondary-var line-clamp-3">
           {doc.content}
         </p>
       </div>
@@ -114,11 +114,11 @@ const DocView: React.FC = () => {
   // If API returned a list, show cards; otherwise show viewer
   if (Array.isArray(data)) {
     return (
-      <main className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 py-12 px-4">
+      <main className="min-h-screen bg-surface py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <header className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-green-900 dark:text-green-300">Documents</h1>
-            <p className="mt-2 text-gray-700 dark:text-gray-300">Select a document to view.</p>
+            <h1 className="text-3xl font-bold text-accent">Documents</h1>
+            <p className="mt-2 text-secondary-var">Select a document to view.</p>
           </header>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {data.map((doc) => <DocCard key={doc.id} doc={doc} />)}
@@ -133,31 +133,31 @@ const DocView: React.FC = () => {
   const firstMedia = doc.media?.[0];
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 py-12 px-4">
+    <main className="min-h-screen bg-surface py-12 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold text-green-900 dark:text-green-300">{doc.title}</h1>
-            <p className="text-sm text-gray-500">Document details and viewer</p>
+            <h1 className="text-3xl font-extrabold text-accent">{doc.title}</h1>
+            <p className="text-sm text-secondary-var">Document details and viewer</p>
           </div>
           <div className="flex gap-3">
             {firstMedia && (
-              <a href={firstMedia} target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-full bg-white border border-green-200 text-green-700">Open original</a>
+              <a href={firstMedia} target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-full bg-surface-2 border border-surface text-accent">Open original</a>
             )}
-            <a href={`/docs`} className="px-4 py-2 rounded-full bg-green-600 text-white">Back to Documents</a>
+            <a href={`/docs`} className="px-4 py-2 rounded-full btn-primary">Back to Documents</a>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow">
+        <div className="bg-surface-2 dark:bg-surface-3 rounded-2xl p-6 shadow">
           {firstMedia ? (
             <div className="mb-6">
               <ResponsiveViewer url={firstMedia} />
             </div>
           ) : (
-            <div className="p-6 text-center text-gray-600">No preview available. You can download the document to view it.</div>
+              <div className="p-6 text-center text-secondary-var">No preview available. You can download the document to view it.</div>
           )}
 
-          <div className="prose dark:prose-invert text-gray-700 dark:text-gray-300">
+          <div className="prose dark:prose-invert text-primary-var">
             {doc.content}
           </div>
         </div>

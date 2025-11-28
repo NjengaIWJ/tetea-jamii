@@ -114,7 +114,7 @@ const Partners: React.FC = () => {
 		<main>
 			<Section size="lg" as="header" className="text-center mb-6">
 				<h1 className="text-3xl font-bold">Our Partners</h1>
-				<p className="text-gray-600 dark:text-gray-300 mt-2">Organizations and groups that collaborate with Tetea Jamii</p>
+				<p className="text-secondary-var mt-2">Organizations and groups that collaborate with Tetea Jamii</p>
 			</Section>
 
 			<Section size="lg">
@@ -126,7 +126,7 @@ const Partners: React.FC = () => {
 								<div key={p._id} className="relative">
 									<PartnerCard partner={p} />
 									<div className="absolute top-2 right-2 flex gap-2">
-										<button onClick={() => openEdit(p)} className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-sm">
+										<button onClick={() => openEdit(p)} className="px-3 py-1 rounded-full bg-surface-2 text-primary-var text-sm">
 											Edit
 										</button>
 										<button
@@ -142,11 +142,11 @@ const Partners: React.FC = () => {
 					)}
 				</div>
 
-				<section className="mt-10 bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-2xl mx-auto shadow">
+				<section className="mt-10 bg-surface-2 rounded-2xl p-6 max-w-2xl mx-auto shadow">
 					<h2 className="text-xl font-semibold mb-3">Add partner</h2>
 					<form onSubmit={handleAddSubmit} className="space-y-4">
 						<div>
-							<label htmlFor="partnerName" className="block font-medium mb-1 text-gray-700 dark:text-gray-200">
+							<label htmlFor="partnerName" className="block font-medium mb-1 text-primary-var">
 								Partner’s Name
 							</label>
 							<input
@@ -157,13 +157,13 @@ const Partners: React.FC = () => {
 								value={addName}
 								onChange={(e) => setAddName(e.target.value)}
 								placeholder="Enter partner’s name"
-								className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+								className="input-base"
 								disabled={postPending}
 							/>
 						</div>
 
 						<div>
-							<label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">Logo / Image</label>
+							<label className="block font-medium mb-1 text-primary-var">Logo / Image</label>
 							<input type="file" accept="image/*" onChange={(e) => onAddFileChange(e.target.files?.[0] ?? null)} disabled={postPending} />
 							{addPreview && (
 								<div className="mt-2">
@@ -176,7 +176,7 @@ const Partners: React.FC = () => {
 							<button
 								type="submit"
 								disabled={postPending || !addName.trim() || !addFile}
-								className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700"
+								className="btn-primary btn"
 							>
 								{postPending ? "Adding..." : "Add Partner"}
 							</button>
@@ -193,12 +193,12 @@ const Partners: React.FC = () => {
 							if (e.target === e.currentTarget) closeEdit();
 						}}
 					>
-						<div className="bg-white dark:bg-gray-900 p-6 rounded-lg max-w-lg w-full">
+						<div className="bg-surface p-6 rounded-lg max-w-lg w-full">
 							<h3 className="text-lg font-semibold mb-3">Edit partner</h3>
 							<div className="space-y-4">
 								<div>
 									<label className="block font-medium mb-1">Name</label>
-									<input value={editing.name} onChange={(e) => setEditing((old) => ({ ...old, name: e.target.value }))} className="w-full px-3 py-2 rounded bg-gray-50 dark:bg-gray-800" />
+									<input value={editing.name} onChange={(e) => setEditing((old) => ({ ...old, name: e.target.value }))} className="input-base" />
 								</div>
 								<div>
 									<label className="block font-medium mb-1">Image</label>
@@ -206,10 +206,10 @@ const Partners: React.FC = () => {
 									{editing.preview && <img src={editing.preview} alt="preview" className="w-32 h-32 object-cover rounded mt-2" />}
 								</div>
 								<div className="flex justify-end gap-2">
-									<button onClick={closeEdit} className="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700">
+									<button onClick={closeEdit} className="px-4 py-2 rounded btn-ghost">
 										Cancel
 									</button>
-									<button onClick={handleEditSave} className="px-4 py-2 rounded bg-green-600 text-white">
+									<button onClick={handleEditSave} className="px-4 py-2 rounded btn-primary">
 										Save
 									</button>
 								</div>

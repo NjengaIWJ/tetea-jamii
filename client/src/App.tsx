@@ -34,10 +34,10 @@ function AppContent() {
 	}
 
 	return (
-		<div className="min-h-screen  bg-gray-100 dark:bg-gray-800 text-gray-900 h-[100vh] dark:text-gray-100 transition-colors duration-300">
+		<div className="min-h-screen bg-surface text-primary-var h-[100vh] transition-colors duration-300">
 			<Navbar />
 			<Toast />
-			<main className="flex-1 w-full bg-white dark:bg-gray-900 transition-colors duration-300 py-6 overflow-x-scroll min-h-[80vh] ">
+			<main className="flex-1 w-full bg-surface-2 transition-colors duration-300 py-6 overflow-x-scroll min-h-[80vh] ">
 				<AnimatePresence mode="wait">
 					<Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center">Loading...</div>}>
 						<Routes location={location} key={location.pathname}>

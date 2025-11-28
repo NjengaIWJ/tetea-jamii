@@ -13,14 +13,14 @@ const PartnerCard: React.FC<{ partner: Partner; className?: string }> = ({ partn
   // keep the card fluid (parent controls min-width for scroller responsiveness)
   // Make the inner card focusable and responsive so keyboard users can tab into each partner.
     <div
-      className={`w-full bg-white dark:bg-gray-800 rounded-2xl p-4 shadow text-center ${className} focus:outline-none focus:ring-2 focus:ring-green-500`}
+      className={`w-full bg-surface-2 rounded-2xl p-4 shadow text-center ${className} focus:outline-none`}
       tabIndex={0}
       aria-label={`Partner ${partner.name}`}
     >
       <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden mx-auto mb-3 relative">
         {/* skeleton while loading */}
         {!loaded && (
-          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse" />
+          <div className="absolute inset-0 bg-surface-3 animate-pulse" />
         )}
         <img
           src={partner.media}
@@ -30,7 +30,7 @@ const PartnerCard: React.FC<{ partner: Partner; className?: string }> = ({ partn
           onLoad={() => setLoaded(true)}
         />
       </div>
-      <div className="font-medium text-gray-900 dark:text-gray-100 truncate">{partner.name}</div>
+      <div className="font-medium text-primary-var truncate">{partner.name}</div>
     </div>
   );
 };

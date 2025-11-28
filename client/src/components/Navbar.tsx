@@ -109,7 +109,7 @@ const Navbar: React.FC = () => {
 			className="w-full bg-surface shadow-lg sticky top-0 z-50"
 			role="banner"
 		>
-			<div className="container mx-auto px-4 py-3">
+			<div className="container-fluid px-4 py-3">
 				<div className="flex flex-col md:flex-row items-start md:items-center gap-4">
 					{/* Logo & Brand */}
 					<div className="flex items-center gap-4 w-full md:w-auto">

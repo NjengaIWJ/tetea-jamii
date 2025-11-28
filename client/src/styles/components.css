@@ -14,6 +14,20 @@
 .btn-primary { background-color: var(--color-primary); color: var(--text-inverted); }
 .btn-primary:hover { background-color: var(--color-primary-hover); }
 
+/* Make inline SVGs inherit text color and be visible in both themes */
+svg {
+  display: inline-block;
+  vertical-align: middle;
+  color: inherit; /* icons that rely on currentColor will inherit text color */
+  fill: currentColor; /* ensure filled icons are visible */
+  stroke: currentColor; /* ensure stroked icons also match */
+}
+
+/* Improve contrast: map some commonly used gray utility classes to theme tokens */
+.text-gray-700 { color: var(--text-primary) !important; }
+.text-gray-600 { color: var(--text-secondary) !important; }
+.text-gray-500 { color: var(--text-muted) !important; }
+
 
 /* Toast Styles */
 .toast-container {
@@ -76,6 +90,15 @@
   border-radius: 6px;
   font-size: 0.75rem;
 }
+
+/* Semantic color utilities mapped to theme tokens */
+.bg-success-light { background-color: var(--color-success-light); }
+.bg-info-light { background-color: var(--color-info-light); }
+.bg-error-light { background-color: var(--color-error-light); }
+.text-success { color: var(--color-success); }
+.text-error { color: var(--color-error); }
+.border-success { border-color: var(--color-success-light); }
+.border-error { border-color: var(--color-error-light); }
 
 legend{
   font-size: 1.5rem;

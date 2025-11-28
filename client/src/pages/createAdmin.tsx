@@ -83,12 +83,12 @@ const Login: React.FC = () => {
         </legend>
 
         {errorMsg && (
-          <div className="flex items-center bg-error/10 border border-error text-error px-4 py-3 rounded relative mb-4" role="alert">
+          <div className="flex items-center bg-error-light border border-error text-error px-4 py-3 rounded relative mb-4" role="alert">
             <XCircle className="mr-2" size={20} />
             <span className="block flex-1">{errorMsg}</span>
             <button
               onClick={handleDismissError}
-              className="ml-2 text-red-700 hover:text-red-900 focus:outline-none"
+              className="ml-2 text-error hover:text-error focus:outline-none"
               aria-label="Dismiss error"
               type="button"
             >
@@ -126,11 +126,11 @@ const Login: React.FC = () => {
               required
             />
             {showPassword === false ? (
-              <span className='absolute right-2 top-3 text-gray-600 cursor-pointer'>
+              <span className='absolute right-2 top-3 text-secondary-var cursor-pointer'>
                 <Eye size={20} onClick={togglePasswordVisibility} />
               </span>
             ) : (
-              <span className='absolute right-2 top-3 text-gray-600 cursor-pointer'>
+                <span className='absolute right-2 top-3 text-secondary-var cursor-pointer'>
                 <EyeClosed size={20} onClick={togglePasswordVisibility} />
               </span>
             )}
@@ -216,12 +216,12 @@ export const Register: React.FC = () => {
   return (
     <>
       {errorMsg && (
-        <div className="flex items-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div className="flex items-center bg-error-light border border-error text-error px-4 py-3 rounded relative mb-4" role="alert">
           <XCircle className="mr-2" size={20} />
           <span className="block flex-1">{errorMsg}</span>
           <button
             onClick={handleDismissError}
-            className="ml-2 text-red-700 hover:text-red-900 focus:outline-none"
+            className="ml-2 text-error hover:text-error focus:outline-none"
             aria-label="Dismiss error"
             type="button"
           >
@@ -276,11 +276,11 @@ export const Register: React.FC = () => {
               required
             />
             {showPassword === false ? (
-              <span className='absolute right-2 top-3 text-gray-600 cursor-pointer'>
+              <span className='absolute right-2 top-3 text-secondary-var cursor-pointer'>
                 <Eye size={20} onClick={togglePasswordVisibility} />
               </span>
             ) : (
-              <span className='absolute right-2 top-3 text-gray-600 cursor-pointer'>
+                <span className='absolute right-2 top-3 text-secondary-var cursor-pointer'>
                 <EyeClosed size={20} onClick={togglePasswordVisibility} />
               </span>
             )}
@@ -304,7 +304,7 @@ export const Logout: React.FC = () => {
   }
 
   return (
-    <fieldset className='w-full max-w-md border border-gray-300 rounded-lg p-6 text-center align-middle bg-white dark:bg-gray-800 shadow-lg '>
+    <fieldset className='w-full max-w-md border border-surface rounded-lg p-6 text-center align-middle bg-surface-2 dark:bg-surface-3 shadow-lg '>
       <legend>
         <h1>Log Out</h1>
       </legend>

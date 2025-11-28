@@ -61,11 +61,11 @@ const DropZone: React.FC<DropZoneProps> = ({
 
   const defaultContent = children ?? (
     <>
-      <UploadCloud size={40} className="text-green-600 mb-3" aria-hidden="true" />
-      <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
-        Drag & drop here, or <span className="text-green-600 underline">click to browse</span>
+      <UploadCloud size={40} className="text-accent mb-3" aria-hidden="true" />
+      <p className="text-lg font-medium text-primary-var">
+        Drag & drop here, or <span className="text-accent underline">click to browse</span>
       </p>
-      <p className="mt-1 text-sm text-gray-500">PNG, JPG, WebP (up to {maxFiles} files)</p>
+      <p className="mt-1 text-sm text-secondary-var">PNG, JPG, WebP (up to {maxFiles} files)</p>
     </>
   );
 
@@ -77,7 +77,7 @@ const DropZone: React.FC<DropZoneProps> = ({
       onDrop={disabled ? undefined : onDrop}
       className={cn(
         'relative flex flex-col items-center justify-center w-full p-4 rounded-lg cursor-pointer border-2 border-dashed transition-all duration-200',
-        isDragging ? "border-green-500 bg-green-50/60" : "border-green-200 bg-white/50 hover:border-green-400",
+        isDragging ? "border-surface bg-surface-3" : "border-surface bg-surface-2 hover:border-surface-3",
         disabled && 'opacity-60 cursor-not-allowed',
         className
       )}
