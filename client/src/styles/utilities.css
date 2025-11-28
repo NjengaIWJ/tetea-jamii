@@ -12,8 +12,8 @@
 /* Responsive containers */
 .container-fluid {
   width: 100%;
-  max-width: var(--max-width, 1440px);
-  margin: 0 auto;
+  max-width: none; /* allow full width on small/medium screens */
+  margin: 0; /* no automatic centering until very large screens */
   padding: 0 1rem;
 }
 
@@ -38,6 +38,18 @@
 @media (min-width: 1280px) {
   .container-xl {
     padding: 0 5rem;
+  }
+}
+
+/* Constrain and center content on very large screens */
+@media (min-width: 1280px) {
+  .container-fluid {
+    max-width: var(--max-width, 1440px);
+    margin: 0 auto;
+  }
+  .site-container {
+    max-width: var(--max-width, 1440px);
+    margin: 0 auto;
   }
 }
 
@@ -90,11 +102,11 @@
   text-decoration: none;
   transition: color 0.12s ease;
 }
-.nav-link:hover { color: var(--color-primary-blue-500); }
-.nav-link--active { font-weight: var(--font-weight-medium); color: var(--color-primary-blue-600); }
+.nav-link:hover { color: var(--color-primary); }
+.nav-link--active { font-weight: var(--font-weight-medium); color: var(--color-primary-dark); }
 
 .text-gradient {
-  background: linear-gradient(90deg, var(--color-primary-green-500), var(--color-primary-blue-500));
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

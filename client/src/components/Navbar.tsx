@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/logo_tujitegemee.jpeg";
 import {
@@ -14,6 +14,8 @@ import {
 	LogOutIcon,
 	PersonStandingIcon,
 	Twitter,
+	Menu,
+	X,
 } from "lucide-react";
 import useAdminStore from "../stores/admin.stores";
 import { ThemeToggle } from "./ThemeToggle";
@@ -38,18 +40,14 @@ const NavItem = React.memo(function NavItem({
 				onClick={onClick}
 				className={({ isActive }) =>
 					[
-						"flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors duration-200 text-gray-600 hover:text-primary transition-colors",
-						isActive
-							? "bg-primary text-white font-semibold"
-							: "text-gray-700 hover:text-primary hover:bg-primary/10",
-					].join(" ")
-				}
+							"nav-link px-3 py-1.5 rounded-md transition-colors duration-200 group",
+							isActive ? "bg-primary text-inverted-var font-semibold" : "hover-text-accent"
+						].join(" ")
+					}
 				aria-current="page"
 			>
 				{item.Icon}
-				<span className="  absolute left-1/2 transform -translate-x-1/2 -top-8 
-        px-2 py-1 text-xs text-white bg-gray-800 rounded-md 
-        opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">{item.label}</span>
+				<span className="absolute left-1/2 transform -translate-x-1/2 -top-8 px-2 py-1 text-xs rounded-md opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap tooltip">{item.label}</span>
 			</NavLink>
 		</li>
 	);
@@ -65,7 +63,7 @@ const ExternalLink: React.FC<{
 			href={href}
 			target="_blank"
 			rel="noopener noreferrer"
-			className="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors"
+			className="flex items-center gap-2 nav-link hover-text-accent"
 			aria-label={label}
 		>
 			{Icon}
@@ -73,7 +71,7 @@ const ExternalLink: React.FC<{
 		<span
 			className="
         absolute left-1/2 transform -translate-x-1/2 -top-8 
-        px-2 py-1 text-xs text-white bg-gray-800 rounded-md 
+			    px-2 py-1 text-xs rounded-md 
         opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap
       "
 		>
@@ -104,9 +102,11 @@ const Navbar: React.FC = () => {
 		[]
 	);
 
+	const [menuOpen, setMenuOpen] = useState(false);
+
 	return (
 		<header
-			className="w-full bg-white shadow-lg sticky top-0 z-50"
+			className="w-full bg-surface shadow-lg sticky top-0 z-50"
 			role="banner"
 		>
 			<div className="container mx-auto px-4 py-3">
@@ -119,7 +119,7 @@ const Navbar: React.FC = () => {
 							className="h-10 w-10 md:h-12 md:w-12 rounded-full object-cover"
 						/>
 						<div>
-							<h1 className="text-lg font-bold text-primary">TETEA JAMII</h1>
+							<h1 className="text-lg font-bold text-primary-var">TETEA JAMII</h1>
 							<div className="sr-only">Community support organisation</div>
 						</div>
 					</div>
@@ -172,41 +172,48 @@ const Navbar: React.FC = () => {
 				<nav
 					aria-label="Main navigation"
 					role="navigation"
-					className="w-full border-t mt-3 pt-3"
+					className="w-full border-t border-surface mt-3 pt-3"
 				>
 					<div className="flex items-center justify-between">
-						<ul className="flex flex-col md:flex-row items-start md:items-center gap-3 list-none m-0 p-0">
+						{/* Mobile menu toggle */}
+						<button
+							className="md:hidden p-2 rounded-md"
+							aria-controls="main-nav"
+							aria-expanded={menuOpen}
+							onClick={() => setMenuOpen((s) => !s)}
+							aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+						>
+							{menuOpen ? <X size={20} /> : <Menu size={20} />}
+						</button>
+
+						<ul
+							id="main-nav"
+							className={`${menuOpen ? "flex" : "hidden"} md:flex flex-col md:flex-row items-start md:items-center gap-3 list-none m-0 p-0`}
+						>
 							{menu.map((item) => (
-								<NavItem key={item.to} item={item} />
-							))}
+												<NavItem key={item.to} item={item} onClick={() => setMenuOpen(false)} />
+											))}
 
 							{!isAuthenticated ? (
 								<li>
-									<NavLink
-										to="/login"
-										className={({ isActive }) =>
-											[
-												"flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors duration-200",
-												isActive
-													? "bg-primary text-white font-semibold"
-													: "text-gray-700 hover:text-primary hover:bg-primary/10",
-											].join(" ")
-										}
-									>
+									<NavLink to="/login" className={({ isActive }) =>
+										["nav-link px-3 py-1.5 rounded-md transition-colors duration-200",
+											isActive ? "bg-primary text-inverted-var font-semibold" : "hover-text-accent"].join(" ")
+									}>
 										<LogInIcon size={16} /> <span>Log in</span>
 									</NavLink>
 								</li>
 							) : (
-									<li>
-										<button
-											type="button"
-											onClick={handleLogout}
-											className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-											aria-label="Log out"
-										>
-											<LogOutIcon size={16} /> <span>Log out</span>
-										</button>
-									</li>
+								<li>
+									<button
+										type="button"
+										onClick={() => { handleLogout(); setMenuOpen(false); }}
+										className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+										aria-label="Log out"
+									>
+										<LogOutIcon size={16} /> <span>Log out</span>
+									</button>
+								</li>
 							)}
 						</ul>
 

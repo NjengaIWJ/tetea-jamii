@@ -17,7 +17,7 @@ partnerRouter.route("/partners")
 partnerRouter
     .route("/partners/:id")
     .get(partners_1.getPartnerById)
-    .patch(jwt_1.authToken, partners_1.updatePartner)
+    .patch(jwt_1.authToken, process.env.NODE_ENV === 'development' ? multer_1.fileUploadAny : multer_1.fileUpload, partners_1.updatePartner)
     .delete(jwt_1.authToken, partners_1.deletePartner);
 exports.default = partnerRouter;
 //# sourceMappingURL=partners.routes.js.map

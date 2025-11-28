@@ -12,13 +12,13 @@
 .content-container {
 	flex: 1;
 	width: 100%;
-	max-width: var(--max-width, 1440px);
-	margin: 0 auto;
+	max-width: none; /* allow full width on small/medium screens */
+	margin: 0; /* no auto-centering except on very large screens */
 	padding: var(--spacing-md);
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	align-items: stretch;
 }
 
 .grid-container {
@@ -27,9 +27,9 @@
 	grid-column: auto-fill;
 	width: 100%;
 	padding: var(--spacing-md);
-	margin: 0 auto;
+	margin: 0;
 	align-content: start;
-	max-width: var(--max-width, 1440px);
+	max-width: none;
 }
 
 /* Responsive grid layouts */
@@ -71,6 +71,16 @@
 	.content-container,
 	.grid-container {
 		padding: var(--spacing-lg);
+	}
+}
+
+/* On very large screens center and constrain width for improved readability */
+@media (min-width: 1280px) {
+	.content-container,
+	.grid-container {
+		max-width: var(--max-width, 1440px);
+		margin: 0 auto;
+		align-items: center;
 	}
 }
 

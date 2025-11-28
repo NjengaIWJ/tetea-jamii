@@ -81,38 +81,86 @@ const getArticleById = async (req, res) => {
 exports.getArticleById = getArticleById;
 const updateArticle = async (req, res) => {
     const { id } = req.params;
-    const { title, content, media } = req.body;
+    const { title, content } = req.body;
+    if (!id || !mongoose_1.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+            success: false,
+            error: "Invalid article ID"
+        });
+    }
     try {
+        const files = Array.isArray(req.files) ? req.files : [];
+        const article = await Story_model_1.default.findById(id);
+        if (!article) {
+            return res.status(404).json({
+                success: false,
+                error: "Article not found"
+            });
+        }
         const updates = {};
         if (title)
-            updates.title = title;
+            updates.title = title.trim();
         if (content)
-            updates.content = content;
-        if (media)
-            updates.media = media;
-        const article = await Story_model_1.default.findByIdAndUpdate(Number(id), updates, { new: true });
-        res
-            .status(200)
-            .json({ article, message: `Article ${title} updated successfully` });
+            updates.content = content.trim();
+        if (files.length > 0) {
+            const mediaItems = [];
+            const uploadPromises = files.map(file => (0, cloudinary_1.streamUpload)(file));
+            const results = await Promise.all(uploadPromises);
+            for (const r of results) {
+                mediaItems.push({ url: r.secure_url, publicId: r.public_id });
+            }
+            updates.media = mediaItems.map(m => m.url);
+        }
+        const updatedArticle = await Story_model_1.default.findByIdAndUpdate(id, updates, { new: true });
+        if (!updatedArticle) {
+            return res.status(500).json({
+                success: false,
+                error: "Failed to update article"
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: "Article updated successfully",
+            data: updatedArticle
+        });
     }
     catch (error) {
         console.error("Error updating article:", error);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : "Internal server error"
+        });
     }
 };
 exports.updateArticle = updateArticle;
 const deleteArticle = async (req, res) => {
     const { id } = req.params;
+    if (!id || !mongoose_1.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+            success: false,
+            error: "Invalid article ID"
+        });
+    }
     try {
-        const article = await Story_model_1.default.findByIdAndDelete(Number(id));
+        const article = await Story_model_1.default.findById(id);
+        if (!article) {
+            return res.status(404).json({
+                success: false,
+                error: "Article not found"
+            });
+        }
+        await Story_model_1.default.findByIdAndDelete(id);
         res.status(200).json({
-            article,
-            message: `Article ${article?.title} deleted successfully`,
+            success: true,
+            message: "Article deleted successfully"
         });
     }
     catch (error) {
         console.error("Error deleting article:", error);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : "Internal server error"
+        });
     }
 };
 exports.deleteArticle = deleteArticle;

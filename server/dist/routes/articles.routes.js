@@ -14,7 +14,7 @@ articlesRouter
 articlesRouter
     .route("/articles/:id")
     .get(articles_1.getArticleById)
-    .put(articles_1.updateArticle)
+    .put(multer_1.default.array("article"), articles_1.updateArticle)
     .delete(articles_1.deleteArticle);
 exports.default = articlesRouter;
 //# sourceMappingURL=articles.routes.js.map

@@ -78,6 +78,12 @@
   
 }
 
+/* Tooltip colors */
+:root {
+	--tooltip-bg: rgba(17, 24, 39, 0.9);
+	--tooltip-text: #ffffff;
+}
+
 /* ---------- Dark theme: invert light roles (surfaces ↔ text) ---------- */
 [data-theme="dark"] {
 	/* Surfaces become dark, but mapped to original text colors where appropriate */
@@ -129,6 +135,11 @@
 	--spacing-sm: 0.75rem;
 	--spacing-md: 1rem;
 	--spacing-lg: 1.5rem;
+}
+
+[data-theme="dark"] {
+	--tooltip-bg: rgba(255,255,255,0.08);
+	--tooltip-text: #ffffff;
 }
 
 /* ---------- Utility: prefer-color-scheme fallbacks (optional) ----------
